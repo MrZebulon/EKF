@@ -1,7 +1,4 @@
 classdef MEKF
-    %MEKF Summary of this class goes here
-    %   Detailed explanation goes here
-    
     properties
         % x: state vector
         % P: covariance martix
@@ -17,35 +14,23 @@ classdef MEKF
         % R: measurement uncertainty matrix
         x;
         P;
-        f;
-        gen_F;
-        gen_G;
-        h;
-        gen_H;
-        gen_noise;
-        R;
+        model;
     end
     
     methods
-        function obj = MKEF(x_init, P_init, f, gen_F, gen_G, h, gen_H, gen_noise, R)
+        function obj = MKEF(x_init, P_init, model)
             obj.x = x_init;
             obj.P = P_init;
-            obj.f = f;
-            obj.gen_F = gen_F;
-            obj.gen_G = gen_G;
-            obj.h = h;
-            obj.gen_H = gen_H;
-            obj.gen_noise = gen_noise;
-            obj.R = R;
+            obj.model = model;
         end
 
         function obj = predict_step(obj, u, Ts)
-            F = obj.gen_F(obj.x, u);
-            A = eye(size(F)) + F * Ts;
-            x_new = obj.f(obj.x, u) * Ts + obj.x; % x = delta_x + x_ref
+            F = obj.model.get_F_Matrix(obj.x, u, Ts);
+            A = eye(size(F)) + F;
+            x_new = obj.model.get_next_state(obj.x, u, Ts) + obj.x; % x = delta_x + x_ref
 
-            [Qs, w] = obj.gen_noise(Ts);
-            G = obj.gen_G(obj.x, u, w);
+            [Qs, w] = obj.model.generate_noise(Ts);
+            G = obj.model.get_G_matrix(obj.x, u, w);
             P_new = A*obj.P*(A') + G*Qs*(G');
 
             obj.x = x_new;
@@ -53,10 +38,10 @@ classdef MEKF
         end
         
         function obj = update_step(obj, z)
-            H = obj.gen_H();
-            nx = size(obj.x,1);
-            inov = z - obj.h(obj.x);
-            S = H*obj.P*(H') + obj.R;
+            H = obj.model.get_H_matrix();
+            nx = size(obj.x, 1);
+            inov = z - obj.model.get_measurement_estimate(obj.x);
+            S = H*obj.P*(H') + obj.model.get_R_matrix();
             K = obj.P*(H')*inv(S);
 
             obj.x = obj.x + K*inov;
@@ -64,4 +49,3 @@ classdef MEKF
         end
     end
 end
-
