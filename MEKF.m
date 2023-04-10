@@ -18,18 +18,18 @@ classdef MEKF
     end
     
     methods
-        function obj = MKEF(x_init, P_init, model)
+        function obj = MEKF(x_init, P_init, model)
             obj.x = x_init;
             obj.P = P_init;
             obj.model = model;
         end
 
-        function obj = predict_step(obj, u, Ts)
-            F = obj.model.get_F_Matrix(obj.x, u, Ts);
-            A = eye(size(F)) + F;
-            x_new = obj.model.get_next_state(obj.x, u, Ts) + obj.x; % x = delta_x + x_ref
+        function obj = predict_step(obj, u)
+            F = obj.model.get_F_matrix(obj.x, u);
+            A = eye(size(F)) + F; % adding identity matrix to ensure that process noise isn't mistakenly removed
+            x_new = obj.model.get_next_state(obj.x, u) + obj.x; % x = delta_x + x_ref
 
-            [Qs, w] = obj.model.generate_noise(Ts);
+            [Qs, w] = obj.model.generate_noise();
             G = obj.model.get_G_matrix(obj.x, u, w);
             P_new = A*obj.P*(A') + G*Qs*(G');
 
@@ -46,6 +46,10 @@ classdef MEKF
 
             obj.x = obj.x + K*inov;
             obj.P = (eye(nx)-K*H)*obj.P;
+        end
+
+        function n = state_size(obj)
+            n = size(obj.x, 1); % state is a n-by-1 array
         end
     end
 end
