@@ -13,12 +13,10 @@ model = SimplifiedModel(Ts);
 mekf = MEKF(zeros(10, 1), diag(1e-9 * ones(1, 10)), model);
 
 %% Simulation loop
-system_states = zeros(n, mekf.state_size());
+system_states = zeros(n, mekf.state_size()); % used for graphing data
 
 for i = 1:n
-    u = get_u(i);
-    z = get_z(i);
-    mekf = mekf.predict_step(u);
-    mekf = mekf.update_step(z);
+    mekf = mekf.predict_step(get_u(i));
+    mekf = mekf.update_step(get_z(i));
     system_states(i, :) = (mekf.x);
 end
