@@ -1,6 +1,8 @@
 clc;
 close all;
 clear;
+
+addpath models\;
 %% Data import
 data = readtable("empty_data.csv");
 Ts = 1/160;

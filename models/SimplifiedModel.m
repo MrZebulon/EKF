@@ -1,4 +1,4 @@
-classdef SimplifiedModel < Model
+classdef SimplifiedModel < BaseModel
     %
     % State vector definition
     %   1-3 : position

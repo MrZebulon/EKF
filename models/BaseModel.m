@@ -1,9 +1,9 @@
-classdef Model < handle
+classdef BaseModel < handle
     properties
         dt;
     end
     methods
-        function obj = Model(dt)
+        function obj = BaseModel(dt)
             obj.dt = dt;
         end
         function x_new = get_next_state(obj, x, u)
