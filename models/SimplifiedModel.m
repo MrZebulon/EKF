@@ -26,9 +26,9 @@ classdef SimplifiedModel < BaseModel
     end
 
     methods
-        function x_new = get_next_state(obj, x, u)
+        function dx = get_delta_x(obj, x, u)
             dt = obj.dt;
-            x_new = [
+            dx = [
                 x(4) * dt
                 x(5) * dt
                 x(6) * dt + x(10)

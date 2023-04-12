@@ -25,9 +25,12 @@ classdef MEKF
         end
 
         function obj = predict_step(obj, u)
+            % Prediction = x(k-1|k-1) -> x(k|k-1)
+            % i.e. it computes the "a priori" estimate
+
             F = obj.model.get_F_matrix(obj.x, u);
             A = eye(size(F)) + F; % adding identity matrix to ensure that process noise isn't mistakenly removed
-            x_new = obj.model.get_next_state(obj.x, u) + obj.x; % x = delta_x + x_ref
+            x_new = obj.model.get_delta_x(obj.x, u) + obj.x; % x = delta_x + x_ref
 
             [Qs, w] = obj.model.generate_noise();
             G = obj.model.get_G_matrix(obj.x, u, w);
@@ -38,6 +41,9 @@ classdef MEKF
         end
         
         function obj = update_step(obj, z)
+            % Update = x(k|k-1) -> x(k|k)
+            % i.e. it computes the "a posteriori" estimate
+
             H = obj.model.get_H_matrix();
             nx = size(obj.x, 1);
             inov = z - obj.model.get_measurement_estimate(obj.x);
