@@ -18,7 +18,8 @@ classdef MEKF
     end
     
     methods
-        function obj = MEKF(x_init, P_init, model)
+        function obj = MEKF(model)
+            [x_init, P_init] = model.get_init_state();
             obj.x = x_init;
             obj.P = P_init;
             obj.model = model;

@@ -12,7 +12,7 @@ get_z = @(i) table2array(data(i, ["baro"]));
 n = size(data, 1); % n = #rows
 %% MEKF instance initialization
 model = SimplifiedModel(Ts);
-mekf = MEKF(zeros(10, 1), diag(1e-9 * ones(1, 10)), model);
+mekf = MEKF(model);
 
 %% Simulation loop
 system_states = zeros(n, mekf.state_size()); % used for graphing data

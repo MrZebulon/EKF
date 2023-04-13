@@ -6,6 +6,11 @@ classdef BaseModel < handle
         function obj = BaseModel(dt)
             obj.dt = dt;
         end
+        function [x_init, P_init] = get_init_state(obj)
+            x_init = 0;
+            P_init = 0;
+        end
+
         function dx = get_delta_x(obj, x, u)
             % delta_x is defined as the integral over a given timestep (dt) of
             % the state update function f(x, u, w).

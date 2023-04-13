@@ -16,16 +16,34 @@ classdef SimplifiedModel < BaseModel
     %   8 : barometer bias noise
     properties
         additive_noise = 1e-8;
-
+        
+        accel_bias = [0 0 0];
         accel_noise = 7.05E-04;
         accel_bias_noise =  6.89e-4;
 
+        baro_bias = 0;
         baro_noise = 1.52e-5; % units = hPa
         baro_bias_noise = 2.98e-7; % units = hPa
         baro_measurement_uncertainty = 0.1;
     end
 
     methods
+        function [x_init, P_init] = get_init_state(obj)
+            x_init = [
+                0
+                0
+                0
+                0
+                0
+                0
+                obj.accel_bias(1)
+                obj.accel_bias(2)
+                obj.accel_bias(3)
+                obj.baro_bias];
+
+            P_init = diag(1e-9 * ones(1, 10));
+        end
+
         function dx = get_delta_x(obj, x, u)
             dt = obj.dt;
             dx = [
@@ -35,10 +53,10 @@ classdef SimplifiedModel < BaseModel
                 (u(1) + x(7)) * dt
                 (u(2) + x(8)) * dt
                 (u(3) + x(9)) * dt
-                x(7)
-                x(8)
-                x(9)
-                x(10)];
+                0
+                0
+                0
+                0];
         end
 
         function F = get_F_matrix(obj, x, u)
