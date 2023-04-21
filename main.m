@@ -7,11 +7,11 @@ addpath models\;
 data = readtable("empty_data.csv");
 Ts = 1/160;
 
-get_u = @(i) table2array(data(i, ["accel_x", "accel_y", "accel_z"]));
+get_u = @(i) table2array(data(i, ["accel_x", "accel_y", "accel_z", "gyro_x", "gyro_y", "gyro_z"]));
 get_z = @(i) table2array(data(i, ["baro"]));
 n = size(data, 1); % n = #rows
 %% MEKF instance initialization
-model = SimplifiedModel(Ts);
+model = TranslationRotationModel(Ts);
 mekf = MEKF(model);
 
 %% Simulation loop
