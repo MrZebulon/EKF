@@ -74,26 +74,17 @@ classdef SimplifiedModel < BaseModel
         end
 
         function G = get_G_matrix(obj, x, u, w)
-            cov_acc_n = w(1);
-            cov_acc_e = w(2);
-            cov_acc_d = w(3);
-            cov_bias_acc_n = w(4);
-            cov_bias_acc_e = w(5);
-            cov_bias_acc_d = w(6);
-            cov_baro = w(7);
-            cov_bias_baro = w(8);
-
             G = [...
-                0, 0, 0             0, 0, 0,                0, 0
-                0, 0, 0             0, 0, 0,                0, 0
-                0, 0, 0             0, 0, 0,                cov_baro, 0
-                cov_acc_n, 0, 0     0, 0, 0,                0, 0
-                0, cov_acc_e, 0     0, 0, 0,                0, 0
-                0, 0, cov_acc_d     cov_bias_acc_n, 0, 0,   0, 0
-                0, 0, 0             0, cov_bias_acc_e, 0,   0, 0
-                0, 0, 0             0, 0, cov_bias_acc_d,   0, 0
-                0, 0, 0             0, 0, 0,                0, 0
-                0, 0, 0             0, 0, 0,                0, cov_bias_baro];
+                0, 0, 0     0,   0, 0, 0,   0
+                0, 0, 0     0,   0, 0, 0,   0
+                0, 0, 0     0,   0, 0, 0,   0
+                1, 0, 0     0,   0, 0, 0,   0
+                0, 1, 0     0,   0, 0, 0,   0
+                0, 0, 1     1,   0, 0, 0,   0
+                0, 0, 0     0,   1, 0, 0,   0
+                0, 0, 0     0,   0, 1, 0,   0
+                0, 0, 0     0,   0, 0, 1,   0
+                0, 0, 0     0,   0, 0, 0,   1];
         end
 
         function z_hat  = get_measurement_estimate(obj, x)
