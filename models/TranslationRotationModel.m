@@ -20,7 +20,7 @@ classdef TranslationRotationModel < BaseModel
     %   11-13 : gyro bias noise
     %   14 : barometer bias noise
 
-    properties
+    properties (Constant)
         additive_noise = 1e-8;
         
         % units = g (9.81 m/s)

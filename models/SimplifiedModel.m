@@ -14,16 +14,19 @@ classdef SimplifiedModel < BaseModel
     %   4 : barometer noise
     %   5-7 : acceleration bias noise
     %   8 : barometer bias noise
-    properties
+    properties (Constant)
         additive_noise = 1e-8;
         
-        accel_bias = [0 0 0];
+        % units = g (9.81 m/s)
+        accel_bias = [-0.2668811881 0.3305544554 0.07695049505];
         accel_noise = 7.05E-04;
         accel_bias_noise =  6.89e-4;
 
-        baro_bias = 0;
-        baro_noise = 1.52e-5; % units = hPa
-        baro_bias_noise = 2.98e-7; % units = hPa
+        % units = hPa
+        baro_bias = 970.5698218;
+        baro_noise = 1.52e-5;
+        baro_bias_noise = 2.98e-7;
+
         baro_measurement_uncertainty = 0.1;
     end
 
