@@ -17,17 +17,17 @@ classdef SimplifiedModel < BaseModel
     properties (Constant)
         additive_noise = 1e-8;
         
-        % units = g (9.81 m/s)
-        accel_bias = [-0.2668811881 0.3305544554 0.07695049505];
-        accel_noise = 7.05E-04;
-        accel_bias_noise =  6.89e-4;
+        % units = m/s
+        accel_bias = [-2.6845463600451454 3.335545323081266 9.019774604966166];
+        accel_noise = 0.0022501515160489754;
+        accel_bias_noise = 0.0003718319715151406;
 
-        % units = hPa
-        baro_bias = 970.5698218;
-        baro_noise = 1.52e-5;
-        baro_bias_noise = 2.98e-7;
+        % units = m
+        baro_bias = 361.3487972164834;
+        baro_noise = 0.0011529662809109404;
+        baro_bias_noise = 2.8486463440220755e-06;
 
-        baro_measurement_uncertainty = 0.1;
+        baro_measurement_uncertainty = 1;
     end
 
     methods
@@ -36,32 +36,40 @@ classdef SimplifiedModel < BaseModel
                 0
                 0
                 0
+
                 0
                 0
                 0
+                
                 obj.accel_bias(1)
                 obj.accel_bias(2)
                 obj.accel_bias(3)
+
                 obj.baro_bias];
 
             P_init = diag(1e-9 * ones(1, 10));
         end
 
-        function dx = get_delta_x(obj, x, u)
+        function x_new = compute_x_new(obj, x, u)
             dt = obj.dt;
             dx = [
                 x(4) * dt
                 x(5) * dt
                 x(6) * dt
+
                 (u(1) + x(7)) * dt
                 (u(2) + x(8)) * dt
                 (u(3) + x(9)) * dt
-                0
-                0
-                0
-                0];
-        end
 
+                0
+                0
+                0
+                
+                0];
+
+            x_new = x + dx;
+        end
+        
         function F = get_F_matrix(obj, x, u)
             F = [...
                 0, 0, 0,    1, 0, 0,    0, 0, 0,    0

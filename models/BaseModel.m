@@ -11,6 +11,12 @@ classdef BaseModel < handle
             P_init = 0;
         end
 
+        function x_new = compute_x_new(obj, x, u)
+            % x_new = x + delta_x
+            % delta_x is defined as the integral over a given timestep (dt) of
+            % the state update function f(x, u, w).
+            x_new = x;
+        end
         function dx = get_delta_x(obj, x, u)
             % delta_x is defined as the integral over a given timestep (dt) of
             % the state update function f(x, u, w).

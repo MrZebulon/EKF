@@ -23,19 +23,20 @@ classdef TranslationRotationModel < BaseModel
     properties (Constant)
         additive_noise = 1e-8;
         
-        % units = g (9.81 m/s)
-        accel_bias = [-0.2668811881 0.3305544554 0.07695049505];
-        accel_noise = 7.05E-04;
-        accel_bias_noise =  6.89e-4;
+        % units = m/s
+        accel_bias = [-2.6845463600451454 3.335545323081266 9.019774604966166];
+        accel_noise = 0.0022501515160489754;
+        accel_bias_noise = 0.0003718319715151406;
 
-        gyro_bias = [0 0 0];
-        gyro_noise = 0;
-        gyro_bias_noise = 0;
+        %units = rad/s
+        gyro_bias = [0.00583044566863878 -0.0005276800977633389 0.005892403831812206];
+        gyro_noise = 0.0002976371540218863;
+        gyro_bias_noise = 1.2221470219227153e-05;
 
-        % units = hPa
-        baro_bias = 970.5698218;
-        baro_noise = 1.52e-5;
-        baro_bias_noise = 2.98e-7;
+        % units = m
+        baro_bias = 361.3487972164834;
+        baro_noise = 0.0011529662809109404;
+        baro_bias_noise = 2.8486463440220755e-06;
 
         baro_measurement_uncertainty = 0.1;
     end
@@ -45,16 +46,16 @@ classdef TranslationRotationModel < BaseModel
             x_init = [
                 0
                 0
-                0
+                obj.baro_bias
 
                 0
                 0
                 0
 
                 0
-                0
-                0
-                0
+                1/sqrt(3)
+                1/sqrt(3)
+                1/sqrt(3)
                 
                 obj.accel_bias(1)
                 obj.accel_bias(2)
@@ -68,26 +69,24 @@ classdef TranslationRotationModel < BaseModel
 
             P_init = diag(1e-9 * ones(1, 17));
         end
-
-        function dx = get_delta_x(obj, x, u)
+        
+        function x_new = compute_x_new(obj, x, u)
             dt = obj.dt;
-
-            delta_a = Utils.body_to_inertial_frame(x(7:10), u(1:3) + x(11:16));
-            delta_q = 0.5 * Utils.mult_quat(x(7:10), u(4:6) + x(14:16));
+            delta_acc = Utils.body_to_inertial_frame(x(7:10)', (u(1:3)' + x(14:16)));
             
             dx = [
                 x(4) * dt
                 x(5) * dt
                 x(6) * dt
 
-                delta_a(1) * dt
-                delta_a(2) * dt
-                delta_a(3) * dt
+                delta_acc(1) * dt
+                delta_acc(2) * dt
+                delta_acc(3) * dt
 
-                delta_q(1) * dt
-                delta_q(2) * dt
-                delta_q(3) * dt
-                delta_q(4) * dt
+                0 % delta_q must be computed separately
+                0
+                0
+                0
                 
                 0
                 0
@@ -98,60 +97,51 @@ classdef TranslationRotationModel < BaseModel
                 0
                 
                 0];
+            
+            x_new = x + dx;
+            x_new(7:10) = compact(normalize(quaternion(x(7:10)') * quaternion(u(4:6) + x(14:16)', 'rotvec')));
         end
 
         function F = get_F_matrix(obj, x, u)
             
             F = zeros(17, 17);
 
-            [q1, q2, q3, q4] = x(7:10);
-            [a_x, a_y, a_z] = u(1:3);
-            [w_x, w_y, w_z] = u(4:6);
-            [b_acc_x, b_acc_y, b_acc_z] = x(11:13);
-            [b_gyro_x, b_gyro_y, b_gyro_z] = x(14:16);
+            q0 = x(7); q1 = x(8); q2 = x(9); q3 = x(10);
+            a_x = u(1); a_y = u(2); a_z = u(3);
+            w_x = u(4); w_y = u(5); w_z = u(6);
+            b_acc_x = x(11); b_acc_y = x(12); b_acc_z = x(13);
+            b_gyro_x = x(14); b_gyro_y = x(15); b_gyro_z = x(16); 
 
-            % dp^dot/dv
+            % dp^dot
             F(1:3, 4:6) = eye(3);
-            
-            %dv^dot/dq
-            F(4, 7:10) = [2*q3*(a_z + b_acc_z) - 2*q4*(a_y + b_acc_y), 2*q3*(a_y + b_acc_y) + 2*q4*(a_z + b_acc_z), 2*q2*(a_y + b_acc_y) - 4*q3*(a_x + b_acc_x) + 2*q1*(a_z + b_acc_z), 2*q2*(a_z + b_acc_z) - 2*q1*(a_y + b_acc_y) - 4*q4*(a_x + b_acc_x)];
-            F(5, 7:10) = [2*q4*(a_x + b_acc_x) - 2*q2*(a_z + b_acc_z), 2*q3*(a_x + b_acc_x) - 4*q2*(a_y + b_acc_y) - 2*q1*(a_z + b_acc_z), 2*q2*(a_x + b_acc_x) + 2*q4*(a_z + b_acc_z), 2*q1*(a_x + b_acc_x) - 4*q4*(a_y + b_acc_y) + 2*q3*(a_z + b_acc_z)];
-            F(6, 7:10) = [2*q2*(a_y + b_acc_y) - 2*q3*(a_x + b_acc_x), 2*q4*(a_x + b_acc_x) + 2*q1*(a_y + b_acc_y) - 4*q2*(a_z + b_acc_z), 2*q4*(a_y + b_acc_y) - 2*q1*(a_x + b_acc_x) - 4*q3*(a_z + b_acc_z), 2*q2*(a_x + b_acc_x) + 2*q3*(a_y + b_acc_y)];
-            
-            %dv^dot/dbeta_acc
-            F(4, 11:13) = [- 2*q3^2 - 2*q4^2 + 1, 2*q2*q3 - 2*q1*q4, 2*q1*q3 + 2*q2*q4];
-            F(5, 11:13) = [2*q1*q4 + 2*q2*q3, - 2*q2^2 - 2*q4^2 + 1, 2*q3*q4 - 2*q1*q2];
-            F(6, 11:13) = [2*q2*q4 - 2*q1*q3, 2*q1*q2 + 2*q3*q4, - 2*q2^2 - 2*q3^2 + 1];
-            
-            %dq^dot/dq
-            F(7, 7:10) = [0, - b_gyro_x/2 - w_x/2, - b_gyro_y/2 - w_y/2, - b_gyro_z/2 - w_z/2];
-            F(8, 7:10) = [b_gyro_x/2 + w_x/2, 0, b_gyro_z/2 + w_z/2, - b_gyro_y/2 - w_y/2];
-            F(9, 7:10) = [b_gyro_y/2 + w_y/2, - b_gyro_z/2 - w_z/2, 0, b_gyro_x/2 + w_x/2];
-            F(10, 7:10) = [b_gyro_z/2 + w_z/2, b_gyro_y/2 + w_y/2, - b_gyro_x/2 - w_x/2, 0];
-            
-            %dq^dot/dbeta_gyro
-            F(7, 14:16) = [-q2/2, -q3/2, -q4/2];
-            F(8, 14:16) = [q1/2, -q4/2,  q3/2];
-            F(9, 14:16) = [q4/2,  q1/2, -q2/2];
-            F(10, 14:16) = [-q3/2,  q2/2,  q1/2];
-             
+    
+            %dv^dot
+            F(4, :) = [0, 0, 0, 0, 0, 0, 2*conj(q2)*(a_z + b_acc_z) - 2*conj(q3)*(a_y + b_acc_y),                             2*conj(q2)*(a_y + b_acc_y) + 2*conj(q3)*(a_z + b_acc_z), 2*conj(q1)*(a_y + b_acc_y) - 4*conj(q2)*(a_x + b_acc_x) + 2*conj(q0)*(a_z + b_acc_z), 2*conj(q1)*(a_z + b_acc_z) - 2*conj(q0)*(a_y + b_acc_y) - 4*conj(q3)*(a_x + b_acc_x),           1 - 2*conj(q3)^2 - 2*conj(q2)^2, 2*conj(q1)*conj(q2) - 2*conj(q0)*conj(q3), 2*conj(q0)*conj(q2) + 2*conj(q1)*conj(q3), 0, 0, 0, 0];
+            F(5, :) = [0, 0, 0, 0, 0, 0, 2*conj(q3)*(a_x + b_acc_x) - 2*conj(q1)*(a_z + b_acc_z), 2*conj(q2)*(a_x + b_acc_x) - 4*conj(q1)*(a_y + b_acc_y) - 2*conj(q0)*(a_z + b_acc_z),                             2*conj(q1)*(a_x + b_acc_x) + 2*conj(q3)*(a_z + b_acc_z), 2*conj(q0)*(a_x + b_acc_x) - 4*conj(q3)*(a_y + b_acc_y) + 2*conj(q2)*(a_z + b_acc_z), 2*conj(q0)*conj(q3) + 2*conj(q1)*conj(q2),           1 - 2*conj(q3)^2 - 2*conj(q1)^2, 2*conj(q2)*conj(q3) - 2*conj(q0)*conj(q1), 0, 0, 0, 0];
+            F(6, :) = [0, 0, 0, 0, 0, 0, 2*conj(q1)*(a_y + b_acc_y) - 2*conj(q2)*(a_x + b_acc_x), 2*conj(q3)*(a_x + b_acc_x) + 2*conj(q0)*(a_y + b_acc_y) - 4*conj(q1)*(a_z + b_acc_z), 2*conj(q3)*(a_y + b_acc_y) - 2*conj(q0)*(a_x + b_acc_x) - 4*conj(q2)*(a_z + b_acc_z),                             2*conj(q1)*(a_x + b_acc_x) + 2*conj(q2)*(a_y + b_acc_y), 2*conj(q1)*conj(q3) - 2*conj(q0)*conj(q2), 2*conj(q0)*conj(q1) + 2*conj(q2)*conj(q3),           1 - 2*conj(q2)^2 - 2*conj(q1)^2, 0, 0, 0, 0];
+            %dq^dot
+            F(7, :) = [0, 0, 0, 0, 0, 0,               1/2, - b_gyro_x/2 - w_x/2, - b_gyro_y/2 - w_y/2, - b_gyro_z/2 - w_z/2, 0, 0, 0, -q1/2, -q2/2, -q3/2, 0];
+            F(8, :) = [0, 0, 0, 0, 0, 0, b_gyro_x/2 + w_x/2,                 1/2,   b_gyro_z/2 + w_z/2, - b_gyro_y/2 - w_y/2, 0, 0, 0,  q0/2, -q3/2,  q2/2, 0];
+            F(9, :) = [0, 0, 0, 0, 0, 0, b_gyro_y/2 + w_y/2, - b_gyro_z/2 - w_z/2,                 1/2,   b_gyro_x/2 + w_x/2, 0, 0, 0,  q3/2,  q0/2, -q1/2, 0];
+            F(10, :) = [0, 0, 0, 0, 0, 0, b_gyro_z/2 + w_z/2,   b_gyro_y/2 + w_y/2, - b_gyro_x/2 - w_x/2,                 1/2, 0, 0, 0, -q2/2,  q1/2,  q0/2, 0];
         end
 
         function G = get_G_matrix(obj, x, u, w)
             G = zeros(17, 14);
+            q0 = x(7); q1 = x(8); q2 = x(9); q3 = x(10);
+
+            %dv_dot 
+            G(4, :) = [          1 - 2*conj(q3)^2 - 2*conj(q2)^2, 2*conj(q1)*conj(q2) - 2*conj(q0)*conj(q3), 2*conj(q0)*conj(q2) + 2*conj(q1)*conj(q3), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            G(5, :) = [2*conj(q0)*conj(q3) + 2*conj(q1)*conj(q2),           1 - 2*conj(q3)^2 - 2*conj(q1)^2, 2*conj(q2)*conj(q3) - 2*conj(q0)*conj(q1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            G(6, :) = [2*conj(q1)*conj(q3) - 2*conj(q0)*conj(q2), 2*conj(q0)*conj(q1) + 2*conj(q2)*conj(q3),           1 - 2*conj(q2)^2 - 2*conj(q1)^2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+           
+            %d_q
+            G(7, :) = [0, 0, 0, -q1/2, -q2/2, -q3/2, 0, 0, 0, 0, 0, 0, 0, 0];
+            G(8, :) = [0, 0, 0,  q0/2, -q3/2,  q2/2, 0, 0, 0, 0, 0, 0, 0, 0];
+            G(9, :) = [0, 0, 0,  q3/2,  q0/2, -q1/2, 0, 0, 0, 0, 0, 0, 0, 0];
+            G(10, :) = [0, 0, 0, -q2/2,  q1/2,  q0/2, 0, 0, 0, 0, 0, 0, 0, 0];
             
-            %dv^dot/d_eta_acc
-            G(4, 1:3) = [- 2*q3^2 - 2*q4^2 + 1, 2*q2*q3 - 2*q1*q4, 2*q1*q3 + 2*q2*q4];
-            G(5, 1:3) = [2*q1*q4 + 2*q2*q3, - 2*q2^2 - 2*q4^2 + 1, 2*q3*q4 - 2*q1*q2];
-            G(6, 1:3) = [2*q2*q4 - 2*q1*q3, 2*q1*q2 + 2*q3*q4, - 2*q2^2 - 2*q3^2 + 1];
-            
-            %dv^dot/d_eta_gyro
-            G(7, 4:6) = [-q2/2, -q3/2, -q4/2];
-            G(8, 4:6) = [q1/2, -q4/2,  q3/2];
-            G(9, 4:6) = [q4/2,  q1/2, -q2/2];
-            G(10, 4:6) = [-q3/2, q2/2, q1/2];
-            
-            %dbeta^dot/d_eta_beta
+            %dbeta^dot
             G(11:17, 8:14) = eye(7);
         end
 

@@ -2,16 +2,6 @@ classdef MEKF
     properties
         % x: state vector
         % P: covariance martix
-        %
-        % f: state transition model
-        % gen_F: generator for df/dx (Jacobian Matrix w/ respect to state vector)
-        % gen_G: generator for df/dw (Jacobian matrix w/ respect to noise vector)
-        %
-        % h: observation model
-        % gen_H: generator for dh/dx (Jacobian Matrix w/ respect to state vector)
-        %
-        % noise_gen: generator for noise vector and process noise matrix
-        % R: measurement uncertainty matrix
         x;
         P;
         model;
@@ -31,20 +21,18 @@ classdef MEKF
 
             F = obj.model.get_F_matrix(obj.x, u);
             A = eye(size(F)) + F; % adding identity matrix to ensure that process noise isn't mistakenly removed
-            x_new = obj.model.get_delta_x(obj.x, u) + obj.x; % x = delta_x + x_ref
-
+            x_new = obj.model.compute_x_new(obj.x, u);
             [Qs, w] = obj.model.generate_noise();
             G = obj.model.get_G_matrix(obj.x, u, w);
             P_new = A*obj.P*(A') + G*Qs*(G');
-
             obj.x = x_new;
-            obj.P = P_new;
+            obj.P = 0.5*(P_new+P_new');
         end
         
         function obj = update_step(obj, z)
             % Update = x(k|k-1) -> x(k|k)
             % i.e. it computes the "a posteriori" estimate
-
+        
             H = obj.model.get_H_matrix();
             nx = size(obj.x, 1);
             inov = z - obj.model.get_measurement_estimate(obj.x);
