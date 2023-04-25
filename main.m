@@ -4,7 +4,7 @@ clear;
 
 %% Data import
 data = readtable("static.csv");
-Ts = 1/160;
+Ts = 1/100;
 
 n = size(data, 1); % n = #rows
 %% MEKF instance initialization

@@ -18,8 +18,8 @@ classdef SimplifiedModel < BaseModel
         additive_noise = 1e-8;
         
         % units = m/s
-        accel_bias = [-2.6845463600451454 3.335545323081266 9.019774604966166];
-        accel_noise = 0.0022501515160489754;
+        accel_bias = [-2.684265624256846 3.3420780321046384 9.018026218787151];
+        accel_noise = 2;
         accel_bias_noise = 0.0003718319715151406;
 
         % units = m
@@ -35,7 +35,7 @@ classdef SimplifiedModel < BaseModel
             x_init = [
                 0
                 0
-                0
+                obj.baro_bias
 
                 0
                 0
