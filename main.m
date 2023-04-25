@@ -27,5 +27,5 @@ end
 
 function u = get_u(data, i)
     u = table2array(data(i, ["accel_x", "accel_y", "accel_z", "gyro_x", "gyro_y", "gyro_z"]));
-    u(1:3) = -u(1:3);
+    u = -u;
 end
