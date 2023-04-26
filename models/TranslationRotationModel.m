@@ -46,7 +46,7 @@ classdef TranslationRotationModel < BaseModel
             x_init = [
                 0 
                 0
-                obj.baro_bias
+                0
 
                 0
                 0
@@ -154,10 +154,12 @@ classdef TranslationRotationModel < BaseModel
         end
 
         function z_hat  = get_measurement_estimate(obj, x)
-            z_hat = x(3);
+            % If using multiple sensors here, h just gets more columns
+            z_hat = [x(3) + x(17)];
         end
 
         function H = get_H_matrix(obj)
+            % If using multiple sensors here, H just gets more rows
             H = [...
                 0, 0, 1,    0, 0, 0,    0, 0, 0, 0,    0, 0, 0    0, 0, 0,   0];
         end

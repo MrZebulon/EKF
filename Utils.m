@@ -13,14 +13,10 @@ classdef Utils
             qn = [qnew_0;qnew_1;qnew_2;qnew_3];
         end
 
-        function mat = cross_product_matrix(vec)
-
-            
-            mat = [...
-                0, -vec(3), -vec(2)
-                vec(3), 0, -vec(1)
-                vec(2), vec(1), 0];
-
+        function data = fuse_data(data_sources, noises)
+            % Mainly for building the u vector if some quantity
+            % is captured by more than one sensor (ex: redundancy)
+            data = ivwmean(data_sources, noises);
         end
     end
 end
