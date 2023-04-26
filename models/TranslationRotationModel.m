@@ -21,21 +21,21 @@ classdef TranslationRotationModel < BaseModel
     %   14 : barometer bias noise
 
     properties (Constant)
-        additive_noise = 1e-8;
+        additive_noise = 1e-6;
 
         % units = m/s
-        accel_bias = [-2.6845463600451454 3.335545323081266 9.019774604966166];
-        accel_noise = 2;
-        accel_bias_noise = 0.0003718319715151406;
+        accel_bias = [-0.026842656242568 0.033420780321046 -0.007947030636161];
+        accel_noise = 1;
+        accel_bias_noise = 2e-4;
 
         %units = rad/s
-        gyro_bias = [0.00583044566863878 -0.0005276800977633389 0.005892403831812206];
+        gyro_bias = [5.735129093702078e-05,-5.361232250514282e-06,3.135626159376753e-05];
         gyro_noise = 1e-5;
-        gyro_bias_noise = 1.2221470219227153e-05;
+        gyro_bias_noise = 0;
 
         % units = m
         baro_bias = 361.3487972164834;
-        baro_noise = 0.0011529662809109404;
+        baro_noise = 0.0007454259701653068;
         baro_bias_noise = 2.8486463440220755e-06;
 
         baro_measurement_uncertainty = 0.1;
@@ -44,7 +44,7 @@ classdef TranslationRotationModel < BaseModel
     methods
         function [x_init, P_init] = get_init_state(obj)
             x_init = [
-                0
+                0 
                 0
                 obj.baro_bias
 
@@ -72,16 +72,16 @@ classdef TranslationRotationModel < BaseModel
 
         function x_new = compute_x_new(obj, x, u)
             dt = obj.dt;
-            delta_acc = Utils.body_to_inertial_frame(x(7:10)', (u(1:3)' + x(14:16)));
-            delta_q =  quaternion([0, u(4:6) + x(14:16)']);
+            delta_acc = Utils.body_to_inertial_frame(x(7:10)', (dt*u(1:3)' - x(11:13)));
+            delta_q = quaternion([1,  (dt * u(4:6) - x(14:16)') / 2]);
             dx = [
                 x(4) * dt
                 x(5) * dt
                 x(6) * dt
 
-                delta_acc(1) * dt
-                delta_acc(2) * dt
-                delta_acc(3) * dt
+                delta_acc(1)
+                delta_acc(2)
+                delta_acc(3)
 
                 0 % delta_q must be computed separately
                 0
@@ -99,7 +99,7 @@ classdef TranslationRotationModel < BaseModel
                 0];
 
             x_new = x + dx;
-            x_new(7:10) = 0.5 * compact(quaternion(x(7:10)') * delta_q) * dt;
+            x_new(7:10) = compact(normalize(quaternion(x(7:10)') * delta_q));
         end
 
         function F = get_F_matrix(obj, x, u)
@@ -107,18 +107,18 @@ classdef TranslationRotationModel < BaseModel
             F = zeros(17, 17);
 
             q0 = x(7); q1 = x(8); q2 = x(9); q3 = x(10);
-            a_x = u(1); a_y = u(2); a_z = u(3);
-            w_x = u(4); w_y = u(5); w_z = u(6);
+            a_x = u(1) * obj.dt; a_y = u(2) * obj.dt; a_z = u(3) * obj.dt;
+            w_x = u(4) * obj.dt; w_y = u(5) * obj.dt; w_z = u(6) * obj.dt;
             b_acc_x = x(11); b_acc_y = x(12); b_acc_z = x(13);
             b_gyro_x = x(14); b_gyro_y = x(15); b_gyro_z = x(16);
 
             % dp^dot
-            F(1:3, 4:6) = eye(3);
-
+            F(1:3, 4:6) = eye(3) * obj.dt;
+            
             %dv^dot
-            F(4, :) = [0, 0, 0, 0, 0, 0, 2*q0*(a_x  + b_acc_x) - 2*q3*(a_y  + b_acc_y) + 2*q2*(a_z  + b_acc_z), 2*q1*(a_x  + b_acc_x) + 2*q2*(a_y  + b_acc_y) + 2*q3*(a_z  + b_acc_z), 2*q1*(a_y  + b_acc_y) - 2*q2*(a_x  + b_acc_x) + 2*q0*(a_z  + b_acc_z), 2*q1*(a_z  + b_acc_z) - 2*q0*(a_y  + b_acc_y) - 2*q3*(a_x  + b_acc_x), 0, 0, 0, - q0^2 - q1^2 + q2^2 + q3^2, 2*q0*q3 - 2*q1*q2, - 2*q0*q2 - 2*q1*q3, 0];
-            F(5, :) = [0, 0, 0, 0, 0, 0, 2*q3*(a_x  + b_acc_x) + 2*q0*(a_y  + b_acc_y) - 2*q1*(a_z  + b_acc_z), 2*q2*(a_x  + b_acc_x) - 2*q1*(a_y  + b_acc_y) - 2*q0*(a_z  + b_acc_z), 2*q1*(a_x  + b_acc_x) + 2*q2*(a_y  + b_acc_y) + 2*q3*(a_z  + b_acc_z), 2*q0*(a_x  + b_acc_x) - 2*q3*(a_y  + b_acc_y) + 2*q2*(a_z  + b_acc_z), 0, 0, 0, - 2*q0*q3 - 2*q1*q2, - q0^2 + q1^2 - q2^2 + q3^2, 2*q0*q1 - 2*q2*q3,  0];
-            F(6, :) = [0, 0, 0, 0, 0, 0, 2*q1*(a_y  + b_acc_y) - 2*q2*(a_x  + b_acc_x) + 2*q0*(a_z  + b_acc_z), 2*q3*(a_x  + b_acc_x) + 2*q0*(a_y  + b_acc_y) - 2*q1*(a_z  + b_acc_z), 2*q3*(a_y  + b_acc_y) - 2*q0*(a_x  + b_acc_x) - 2*q2*(a_z  + b_acc_z), 2*q1*(a_x  + b_acc_x) + 2*q2*(a_y  + b_acc_y) + 2*q3*(a_z  + b_acc_z), 0, 0, 0,   2*q0*q2 - 2*q1*q3, - 2*q0*q1 - 2*q2*q3, - q0^2 + q1^2 + q2^2 - q3^2, 0];
+            F(4, :) = [0, 0, 0, 0, 0, 0, 2*q0*(a_x  - b_acc_x) - 2*q3*(a_y  - b_acc_y) + 2*q2*(a_z  - b_acc_z), 2*q1*(a_x  - b_acc_x) + 2*q2*(a_y  - b_acc_y) + 2*q3*(a_z  - b_acc_z), 2*q1*(a_y  - b_acc_y) - 2*q2*(a_x  - b_acc_x) + 2*q0*(a_z  - b_acc_z), 2*q1*(a_z  - b_acc_z) - 2*q0*(a_y  - b_acc_y) - 2*q3*(a_x  - b_acc_x), 0, 0, 0, - q0^2 - q1^2 + q2^2 + q3^2, 2*q0*q3 - 2*q1*q2, - 2*q0*q2 - 2*q1*q3, 0];
+            F(5, :) = [0, 0, 0, 0, 0, 0, 2*q3*(a_x  - b_acc_x) + 2*q0*(a_y  - b_acc_y) - 2*q1*(a_z  - b_acc_z), 2*q2*(a_x  - b_acc_x) - 2*q1*(a_y  - b_acc_y) - 2*q0*(a_z  - b_acc_z), 2*q1*(a_x  - b_acc_x) + 2*q2*(a_y  - b_acc_y) + 2*q3*(a_z  - b_acc_z), 2*q0*(a_x  - b_acc_x) - 2*q3*(a_y  - b_acc_y) + 2*q2*(a_z  - b_acc_z), 0, 0, 0, - 2*q0*q3 - 2*q1*q2, - q0^2 + q1^2 - q2^2 + q3^2, 2*q0*q1 - 2*q2*q3,  0];
+            F(6, :) = [0, 0, 0, 0, 0, 0, 2*q1*(a_y  - b_acc_y) - 2*q2*(a_x  - b_acc_x) + 2*q0*(a_z  - b_acc_z), 2*q3*(a_x  - b_acc_x) + 2*q0*(a_y  - b_acc_y) - 2*q1*(a_z  - b_acc_z), 2*q3*(a_y  - b_acc_y) - 2*q0*(a_x  - b_acc_x) - 2*q2*(a_z  - b_acc_z), 2*q1*(a_x  - b_acc_x) + 2*q2*(a_y  - b_acc_y) + 2*q3*(a_z  - b_acc_z), 0, 0, 0,   2*q0*q2 - 2*q1*q3, - 2*q0*q1 - 2*q2*q3, - q0^2 + q1^2 + q2^2 - q3^2, 0];
             
             %dq^dot
             F(7, :) = [0, 0, 0, 0, 0, 0, 0, b_gyro_x/2 - w_x/2, b_gyro_y/2 - w_y/2, b_gyro_z/2 - w_z/2, 0, 0, 0, q1/2, q2/2, q3/2, 0];
@@ -127,23 +127,30 @@ classdef TranslationRotationModel < BaseModel
             F(10, :) = [0, 0, 0, 0, 0, 0, w_z/2 - b_gyro_z/2, w_y/2 - b_gyro_y/2, b_gyro_x/2 - w_x/2, 0, 0, 0, 0, q2/2, -q1/2, -q0/2, 0];
         end
 
-        function G = get_G_matrix(obj, x, u, w)
-            G = zeros(17, 14);
-            q0 = x(7); q1 = x(8); q2 = x(9); q3 = x(10);
+        function Q = get_Q_matrix(obj, x, u, w)
+            dvxCov = w(1); 
+            dvyCov = w(2);
+            dvzCov = w(3); 
+            daxCov = w(4); 
+            dayCov = w(5); 
+            dazCov = w(6); 
 
-            %dv_dot
-            G(4, :) = 0.5 * [- q0^2 - q1^2 + q2^2 + q3^2, 2*q0*q3 - 2*q1*q2, - 2*q0*q2 - 2*q1*q3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            G(5, :) = 0.5 * [- 2*q0*q3 - 2*q1*q2, - q0^2 + q1^2 - q2^2 + q3^2, 2*q0*q1 - 2*q2*q3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            G(6, :) = 0.5 * [2*q0*q2 - 2*q1*q3, - 2*q0*q1 - 2*q2*q3, - q0^2 + q1^2 + q2^2 - q3^2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            q0 = x(7);
+            q1 = x(8);
+            q2 = x(9);
+            q3 = x(10);
 
-            %d_q
-            G(7, :) = [0, 0, 0, q1/2, q2/2, q3/2, 0, 0, 0, 0, 0, 0, 0, 0];
-            G(8, :) = [0, 0, 0, -q0/2, q3/2, -q2/2, 0, 0, 0, 0, 0, 0, 0, 0];
-            G(9, :) = [0, 0, 0, -q3/2, -q0/2, q1/2, 0, 0, 0, 0, 0, 0, 0, 0];
-            G(10, :) = [0, 0, 0, q2/2, -q1/2, -q0/2, 0, 0, 0, 0, 0, 0, 0, 0];
+            Q = zeros(17, 17);
 
-            %dbeta^dot
-            G(11:17, 8:14) = eye(7);
+            Q(4, :) = [0, 0, 0, dvyCov*(2*q0*q3 - 2*q1*q2)^2 + dvzCov*(2*q0*q2 + 2*q1*q3)^2 + dvxCov*(q0^2 + q1^2 - q2^2 - q3^2)^2, dvxCov*(2*q0*q3 + 2*q1*q2)*(q0^2 + q1^2 - q2^2 - q3^2) - dvyCov*(2*q0*q3 - 2*q1*q2)*(q0^2 - q1^2 + q2^2 - q3^2) - dvzCov*(2*q0*q1 - 2*q2*q3)*(2*q0*q2 + 2*q1*q3), dvzCov*(2*q0*q2 + 2*q1*q3)*(q0^2 - q1^2 - q2^2 + q3^2) - dvxCov*(2*q0*q2 - 2*q1*q3)*(q0^2 + q1^2 - q2^2 - q3^2) - dvyCov*(2*q0*q1 + 2*q2*q3)*(2*q0*q3 - 2*q1*q2), 0, 0, 0, 0,  0, 0, 0,  0, 0, 0, 0];
+            Q(5, :) = [0, 0, 0, dvxCov*(2*q0*q3 + 2*q1*q2)*(q0^2 + q1^2 - q2^2 - q3^2) - dvyCov*(2*q0*q3 - 2*q1*q2)*(q0^2 - q1^2 + q2^2 - q3^2) - dvzCov*(2*q0*q1 - 2*q2*q3)*(2*q0*q2 + 2*q1*q3), dvxCov*(2*q0*q3 + 2*q1*q2)^2 + dvzCov*(2*q0*q1 - 2*q2*q3)^2 + dvyCov*(q0^2 - q1^2 + q2^2 - q3^2)^2, dvyCov*(2*q0*q1 + 2*q2*q3)*(q0^2 - q1^2 + q2^2 - q3^2) - dvzCov*(2*q0*q1 - 2*q2*q3)*(q0^2 - q1^2 - q2^2 + q3^2) - dvxCov*(2*q0*q2 - 2*q1*q3)*(2*q0*q3 + 2*q1*q2), 0, 0, 0, 0,  0, 0, 0,  0, 0, 0, 0];
+            Q(6, :) = [0, 0, 0, dvzCov*(2*q0*q2 + 2*q1*q3)*(q0^2 - q1^2 - q2^2 + q3^2) - dvxCov*(2*q0*q2 - 2*q1*q3)*(q0^2 + q1^2 - q2^2 - q3^2) - dvyCov*(2*q0*q1 + 2*q2*q3)*(2*q0*q3 - 2*q1*q2), dvyCov*(2*q0*q1 + 2*q2*q3)*(q0^2 - q1^2 + q2^2 - q3^2) - dvzCov*(2*q0*q1 - 2*q2*q3)*(q0^2 - q1^2 - q2^2 + q3^2) - dvxCov*(2*q0*q2 - 2*q1*q3)*(2*q0*q3 + 2*q1*q2), dvxCov*(2*q0*q2 - 2*q1*q3)^2 + dvyCov*(2*q0*q1 + 2*q2*q3)^2 + dvzCov*(q0^2 - q1^2 - q2^2 + q3^2)^2, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0, 0];
+
+            Q(7, :) = [0, 0, 0,  0, 0, 0, (daxCov*q1^2)/4 + (dayCov*q2^2)/4 + (dazCov*q3^2)/4, (dayCov*q2*q3)/4 - (daxCov*q0*q1)/4 - (dazCov*q2*q3)/4, (dazCov*q1*q3)/4 - (dayCov*q0*q2)/4 - (daxCov*q1*q3)/4, (daxCov*q1*q2)/4 - (dayCov*q1*q2)/4 - (dazCov*q0*q3)/4,  0, 0, 0,   0, 0, 0,  0];
+            Q(8, :) = [0, 0, 0,  0, 0, 0, (dayCov*q2*q3)/4 - (daxCov*q0*q1)/4 - (dazCov*q2*q3)/4, (daxCov*q0^2)/4 + (dazCov*q2^2)/4 + (dayCov*q3^2)/4, (daxCov*q0*q3)/4 - (dayCov*q0*q3)/4 - (dazCov*q1*q2)/4, (dazCov*q0*q2)/4 - (dayCov*q1*q3)/4 - (daxCov*q0*q2)/4,  0, 0, 0,   0, 0, 0,  0];
+            Q(9, :) = [0, 0, 0,  0, 0, 0, (dazCov*q1*q3)/4 - (dayCov*q0*q2)/4 - (daxCov*q1*q3)/4, (daxCov*q0*q3)/4 - (dayCov*q0*q3)/4 - (dazCov*q1*q2)/4, (dayCov*q0^2)/4 + (dazCov*q1^2)/4 + (daxCov*q3^2)/4, (dayCov*q0*q1)/4 - (daxCov*q2*q3)/4 - (dazCov*q0*q1)/4,  0, 0, 0,   0, 0, 0,  0];
+            Q(10, :) = [0, 0, 0, 0, 0, 0, (daxCov*q1*q2)/4 - (dayCov*q1*q2)/4 - (dazCov*q0*q3)/4, (dazCov*q0*q2)/4 - (dayCov*q1*q3)/4 - (daxCov*q0*q2)/4, (dayCov*q0*q1)/4 - (daxCov*q2*q3)/4 - (dazCov*q0*q1)/4,(dazCov*q0^2)/4 + (dayCov*q1^2)/4 + (daxCov*q2^2)/4,   0, 0, 0,   0, 0, 0,  0];
+        
         end
 
         function z_hat  = get_measurement_estimate(obj, x)
@@ -163,8 +170,8 @@ classdef TranslationRotationModel < BaseModel
             ang_vel_delta_bias_sigma = scale_var.* obj.gyro_bias_noise;
             pos_delta_bias_sigma = scale_var.* obj.baro_bias_noise;
 
-            Qs = diag([obj.additive_noise.*ones(1,3), obj.additive_noise.*ones(1,3), obj.additive_noise.*ones(1,1), vel_delta_bias_sigma.*ones(1,3), ang_vel_delta_bias_sigma.*ones(1,3), pos_delta_bias_sigma.*ones(1,1)]);
-            w = scale_var.*[obj.accel_noise.*ones(1,3), obj.gyro_noise.*ones(1,3), obj.baro_noise*ones(1,1), obj.accel_bias_noise.*ones(1,3), obj.gyro_bias_noise.*ones(1,3), obj.baro_bias_noise.*ones(1,1)];
+            Qs = diag([obj.additive_noise.*ones(1,10), vel_delta_bias_sigma.*ones(1,3), ang_vel_delta_bias_sigma.*ones(1,3), pos_delta_bias_sigma.*ones(1,1)]);
+            w = scale_var.*[obj.accel_noise.*ones(1,3), obj.gyro_noise.*ones(1,3), obj.baro_noise.*ones(1,1)];
         end
 
         function R = get_R_matrix(obj)

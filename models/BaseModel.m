@@ -29,10 +29,10 @@ classdef BaseModel < handle
             F = 0;
         end
 
-        function G = get_G_matrix(obj, x, u, w)
-            % The G matrix is the Jacobian matrix of the state update
-            % function f(x, u, w) with respect to the noise vector w.
-            G = 0;
+        function Q = get_Q_matrix(obj, x, u, w)
+            % The Q matrix is the process Covariance Matrix.
+            % Q(i,j) = Cov(x_i, x_j)
+            Q = 0;
         end
 
         function z_hat  = get_measurement_estimate(obj, x)

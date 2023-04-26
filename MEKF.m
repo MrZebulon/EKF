@@ -6,7 +6,7 @@ classdef MEKF
         P;
         model;
     end
-    
+
     methods
         function obj = MEKF(model)
             [x_init, P_init] = model.get_init_state();
@@ -22,13 +22,15 @@ classdef MEKF
             F = obj.model.get_F_matrix(obj.x, u);
             A = eye(size(F)) + F; % adding identity matrix to ensure that process noise isn't mistakenly removed
             [Qs, w] = obj.model.generate_noise();
-            G = obj.model.get_G_matrix(obj.x, u, w);
-            P_new = A*obj.P*(A') + G*Qs*(G');
+            Q = obj.model.get_Q_matrix(obj.x, u, w);
+            P_new = A*obj.P*(A') + Q + Qs;
             
             obj.x = obj.model.compute_x_new(obj.x, u);
-            obj.model.reset(obj.x);
-
             obj.P = 0.5*(P_new+P_new');
+            % P has to be symmetric. We could use P + P' instead
+            % (as it will always be symmetric). Since Pij = Pji
+            % correspond to a covariance, we divide by two (so as to not
+            % "count twice" the covariance)
         end
         
         function obj = update_step(obj, z)
@@ -43,7 +45,7 @@ classdef MEKF
 
             obj.x = obj.x + K*inov;
             obj.P = (eye(nx)-K*H)*obj.P;
-            obj.x = obj.model.reset(obj.x);
+            %obj.x = obj.model.reset(obj.x);
         end
 
         function n = state_size(obj)
