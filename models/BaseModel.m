@@ -43,7 +43,7 @@ classdef BaseModel < handle
         end
 
         function H = get_H_matrix(obj)
-            % The G matrix is the Jacobian matrix of the state update
+            % The H matrix is the Jacobian matrix of the obeservation
             % function h(x) with respect to the state vector x.
             H = 0;
         end
@@ -62,10 +62,6 @@ classdef BaseModel < handle
             % Generated at each step so as to allow it to
             % change over time (i.e. R(k) would depend on R(k-1)).
             R = 0;
-        end
-
-        function x_c = reset(obj, x)
-            x_c = x;
         end
     end
 

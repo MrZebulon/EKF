@@ -45,7 +45,6 @@ classdef MEKF
 
             obj.x = obj.x + K*inov;
             obj.P = (eye(nx)-K*H)*obj.P;
-            %obj.x = obj.model.reset(obj.x);
         end
 
         function n = state_size(obj)

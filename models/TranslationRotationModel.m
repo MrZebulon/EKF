@@ -179,11 +179,6 @@ classdef TranslationRotationModel < BaseModel
         function R = get_R_matrix(obj)
             R = obj.baro_measurement_uncertainty;
         end
-
-        function x_c = reset(obj, x)
-            x_c = x;
-            x_c(7:10) = compact(normalize(quaternion(x(7:10)')));
-        end
     end
 end
 
