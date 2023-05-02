@@ -17,11 +17,6 @@ classdef BaseModel < handle
             % the state update function f(x, u, w).
             x_new = x;
         end
-        function dx = get_delta_x(obj, x, u)
-            % delta_x is defined as the integral over a given timestep (dt) of
-            % the state update function f(x, u, w).
-            dx = 0;
-        end
 
         function F = get_F_matrix(obj, x, u)
             % The F matrix is the Jacobian matrix of the state update

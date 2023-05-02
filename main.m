@@ -10,6 +10,8 @@ Ts = 1/100;
 
 n = size(data, 1); % n = #rows
 %% MEKF instance initialization
+profile on;
+
 model = TranslationRotationModel(Ts);
 mekf = MEKF(model);
 
@@ -21,6 +23,8 @@ for i = 1:n
     mekf = mekf.update_step(get_z(data, i));
     system_states(i, :) = [mekf.x' get_u(data, i)];
 end
+
+profile viewer;
 
 %% Data handling functions
 function z = get_z(data, i)
