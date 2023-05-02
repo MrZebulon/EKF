@@ -85,6 +85,9 @@
 		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/BaseModel.hpp">
 			<Option target="shai"/>
 		</Unit>
+		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/MEKF.hpp">
+			<Option target="shai"/>
+		</Unit>
 		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/TranslationRotationModel.hpp">
 			<Option target="shai"/>
 		</Unit>

@@ -17,6 +17,8 @@ namespace shai::models {
 		typedef Eigen::Vector<double, n_w> wVector;
 
 		typedef Eigen::Matrix<double, n_x, n_x> xxMatrix;
+		typedef Eigen::Matrix<double, n_x, n_u> xuMatrix;
+		typedef Eigen::Matrix<double, n_u, n_u> uuMatrix;
 		typedef Eigen::Matrix<double, n_z, n_x> zxMatrix;
 		typedef Eigen::Matrix<double, n_z, n_z> zzMatrix;
 	protected:

@@ -27,6 +27,8 @@ namespace shai::models::TRM {
 	using zVector = TranslationRotationModel::zVector;
 	using wVector = TranslationRotationModel::wVector;
 	using xxMatrix = TranslationRotationModel::xxMatrix;
+	using xuMatrix = TranslationRotationModel::xuMatrix;
+	using uuMatrix = TranslationRotationModel::uuMatrix;
 	using zxMatrix = TranslationRotationModel::zxMatrix;
 	using zzMatrix = TranslationRotationModel::zzMatrix;
 }
