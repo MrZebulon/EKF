@@ -81,12 +81,12 @@ clean: CMakeFiles/shai.dir/clean
 CMakeFiles/shai.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/cmake-build-debug/CMakeFiles" --progress-num=1,2 "Built target shai"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/cmake-build-debug/CMakeFiles" --progress-num=1,2,3 "Built target shai"
 .PHONY : CMakeFiles/shai.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/shai.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/cmake-build-debug/CMakeFiles" 2
+	$(CMAKE_COMMAND) -E cmake_progress_start "/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/cmake-build-debug/CMakeFiles" 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/shai.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start "/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/cmake-build-debug/CMakeFiles" 0
 .PHONY : CMakeFiles/shai.dir/rule

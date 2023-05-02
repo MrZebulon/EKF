@@ -11,23 +11,28 @@ namespace shai::models {
 	template<std::size_t n_x, std::size_t n_u, std::size_t n_w, std::size_t n_z>
 	class BaseModel{
 	public:
-		typedef Eigen::Vector<double, n_x> StateVector;
-		typedef Eigen::Vector<double, n_u> InputVector;
-		typedef Eigen::Vector<double, n_z> ObservationVector;
-		typedef Eigen::Vector<double, n_w> NoiseVector;
+		typedef Eigen::Vector<double, n_x> xVector;
+		typedef Eigen::Vector<double, n_u> uVector;
+		typedef Eigen::Vector<double, n_z> zVector;
+		typedef Eigen::Vector<double, n_w> wVector;
+
+		typedef Eigen::Matrix<double, n_x, n_x> xxMatrix;
+		typedef Eigen::Matrix<double, n_z, n_x> zxMatrix;
+		typedef Eigen::Matrix<double, n_z, n_z> zzMatrix;
 	protected:
 		double _dt;
-	public:
+	protected:
 		explicit BaseModel(double dt) : _dt(dt) {}
-		virtual StateVector compute_x_new(const StateVector& x, const InputVector& u) = 0;
-		virtual Eigen::Matrix<double, n_x, n_x> get_F_matrix(const StateVector& x, const InputVector& u) = 0;
-		virtual Eigen::Matrix<double, n_x, n_x> get_Q_matrix(const StateVector& x, const InputVector& u, const NoiseVector & w) = 0;
+		virtual xVector compute_x_new(const xVector& x, const uVector& u) = 0;
+		virtual xxMatrix get_F_matrix(const xVector& x, const uVector& u) = 0;
+		virtual xxMatrix get_Q_matrix(const xVector& x, const uVector& u, const wVector & w) = 0;
 
-		virtual ObservationVector get_measurement_estimate(const StateVector& x) = 0;
-		virtual Eigen::Matrix<double, n_z, n_z> get_H_matrix() = 0;
+		virtual zVector get_measurement_estimate(const xVector& x) = 0;
+		virtual zxMatrix get_H_matrix() = 0;
+		virtual zzMatrix get_R_matrix() = 0;
 
-		virtual NoiseVector get_noise_vect() = 0;
-		virtual Eigen::Matrix<double, n_x, n_x> get_Qs_matrix() = 0;
+		virtual wVector get_noise_vect() = 0;
+		virtual xxMatrix get_Qs_matrix() = 0;
 	};
 }
 #endif //SHAI_BASEMODEL_H

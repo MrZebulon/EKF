@@ -129,6 +129,30 @@ shai/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/build
 .PHONY : shai/fast
 
+src/TranslationRotationModel.o: src/TranslationRotationModel.cpp.o
+.PHONY : src/TranslationRotationModel.o
+
+# target to build an object file
+src/TranslationRotationModel.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/src/TranslationRotationModel.cpp.o
+.PHONY : src/TranslationRotationModel.cpp.o
+
+src/TranslationRotationModel.i: src/TranslationRotationModel.cpp.i
+.PHONY : src/TranslationRotationModel.i
+
+# target to preprocess a source file
+src/TranslationRotationModel.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/src/TranslationRotationModel.cpp.i
+.PHONY : src/TranslationRotationModel.cpp.i
+
+src/TranslationRotationModel.s: src/TranslationRotationModel.cpp.s
+.PHONY : src/TranslationRotationModel.s
+
+# target to generate assembly for a file
+src/TranslationRotationModel.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/src/TranslationRotationModel.cpp.s
+.PHONY : src/TranslationRotationModel.cpp.s
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -162,6 +186,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... shai"
+	@echo "... src/TranslationRotationModel.o"
+	@echo "... src/TranslationRotationModel.i"
+	@echo "... src/TranslationRotationModel.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

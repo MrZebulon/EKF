@@ -88,6 +88,9 @@
 		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/TranslationRotationModel.hpp">
 			<Option target="shai"/>
 		</Unit>
+		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/src/TranslationRotationModel.cpp">
+			<Option target="shai"/>
+		</Unit>
 		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/src/main.cpp">
 			<Option target="shai"/>
 		</Unit>
