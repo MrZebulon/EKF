@@ -13,11 +13,10 @@ namespace shai{
 		Eigen::VectorXd x;
 		Eigen::MatrixXd P;
 
-		Eigen::VectorXd w;
-
 		Eigen::MatrixXd F;
-		Eigen::MatrixXd A;
 		Eigen::MatrixXd Q;
+
+		Eigen::VectorXd w;
 		Eigen::MatrixXd Qs;
 
 		Eigen::VectorXd h;
@@ -36,23 +35,28 @@ namespace shai{
 	public:
 		explicit MEKF(const Model& model) : _model(model) {}
 
-	private:
-		Model _model;
-		MEKFParameters _params;
-	public:
-
 		void init(){
 			_params.x = _model.init_state();
 			_params.P = _model.init_cov();
 		}
 
+		void run_once(const Eigen::VectorXd& u, const Eigen::VectorXd& z){
+			predict(u);
+			update(z);
+			clear();
+		}
+
+	private:
+		Model _model;
+		MEKFParameters _params;
+	protected:
 		void predict(const Eigen::VectorXd& u) {
 			_model.get_F_matrix(_params.x, u, _params.F);
-			_params.A = Eigen::MatrixXd::Identity(_model._nx, _model._nx) + _params.F;
+			_params.F = Eigen::MatrixXd::Identity(_model._nx, _model._nx) + _params.F;
 			_model.get_Qs_matrix(_params.Qs);
 			_model.get_noise_vect(_params.w);
 			_model.get_Q_matrix(_params.x, u, _params.w);
-			_params.P = _params.A * _params.P * _params.A.transpose() + _params.Q + _params.Qs;
+			_params.P = _params.F * _params.P * _params.F.transpose() + _params.Q + _params.Qs;
 
 			_model.compute_x_new(_params.x, u, _params.x);
 			_params.P = 0.5 * (_params.P + _params.P.transpose());
@@ -68,8 +72,25 @@ namespace shai{
 			_params.P = (Eigen::MatrixXd::Identity(_model._nx, _model._nx) - _params.K * _params.H) * _params.P;
 		}
 
-		const MEKFParameters &get_state() const {
+		void clear() {
+			_params.F.setZero();
+			_params.Q.setZero();
+
+			_params.w.setZero();
+			_params.Qs.setZero();
+
+			_params.h.setZero();
+			_params.H.setZero();
+			_params.R.setZero();
+
+			_params.inov.setZero();
+			_params.S.setZero();
+			_params.K.setZero();
+		}
+
+		const MEKFParameters& get_state() const {
 			return _params;
+		}
 	};
 };
 

@@ -20,6 +20,9 @@ namespace shai::models {
 		explicit BaseModel(double dt, size_t nx, size_t nu, size_t nw, size_t nz)
 			: _dt(dt), nx(nx), nu(nu), nw(nw), nz(nz) {}
 
+		virtual Eigen::VectorXd get_init_state() = 0;
+		virtual Eigen::MatrixXd get_init_cov() = 0;
+
 		virtual void compute_x_new(const Eigen::VectorXd &x, const Eigen::VectorXd &u, Eigen::VectorXd &out) = 0;
 		virtual void get_F_matrix(const Eigen::VectorXd &x, const Eigen::VectorXd &u, Eigen::MatrixXd &out) = 0;
 		virtual void get_Q_matrix(const Eigen::VectorXd &x, const Eigen::VectorXd &u, const Eigen::VectorXd &w, Eigen::MatrixXd &out) = 0;
