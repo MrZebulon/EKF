@@ -20,16 +20,16 @@ namespace shai::models {
 		explicit BaseModel(double dt, size_t nx, size_t nu, size_t nw, size_t nz)
 			: _dt(dt), nx(nx), nu(nu), nw(nw), nz(nz) {}
 
-		virtual Eigen::VectorXd compute_x_new(const Eigen::VectorXd& x, const Eigen::VectorXd& u) = 0;
-		virtual Eigen::MatrixXd get_F_matrix(const Eigen::VectorXd& x, const Eigen::VectorXd& u) = 0;
-		virtual Eigen::MatrixXd get_Q_matrix(const Eigen::VectorXd& x, const Eigen::VectorXd& u, const Eigen::VectorXd & w) = 0;
+		virtual void compute_x_new(const Eigen::VectorXd &x, const Eigen::VectorXd &u, Eigen::VectorXd &out) = 0;
+		virtual void get_F_matrix(const Eigen::VectorXd &x, const Eigen::VectorXd &u, Eigen::MatrixXd &out) = 0;
+		virtual void get_Q_matrix(const Eigen::VectorXd &x, const Eigen::VectorXd &u, const Eigen::VectorXd &w, Eigen::MatrixXd &out) = 0;
 
-		virtual Eigen::VectorXd get_measurement_estimate(const Eigen::VectorXd& x) = 0;
-		virtual Eigen::MatrixXd get_H_matrix() = 0;
-		virtual Eigen::MatrixXd get_R_matrix() = 0;
+		virtual void get_measurement_estimate(const Eigen::VectorXd &x, Eigen::VectorXd &out) = 0;
+		virtual void get_H_matrix(Eigen::MatrixXd &out) = 0;
+		virtual void get_R_matrix(Eigen::MatrixXd &out) = 0;
 
-		virtual Eigen::VectorXd get_noise_vect() = 0;
-		virtual Eigen::MatrixXd get_Qs_matrix() = 0;
+		virtual void get_noise_vect(Eigen::VectorXd &out) = 0;
+		virtual void get_Qs_matrix(Eigen::MatrixXd &out) = 0;
 	public:
 		double get_dt() const {
 			return _dt;

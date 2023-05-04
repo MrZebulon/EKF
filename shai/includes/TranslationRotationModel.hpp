@@ -17,16 +17,16 @@ namespace shai::models {
 		SensorParameters<1> _baro_params = {361.3487972164834, 0.0007454259701653068, 2.8486463440220755e-06};
 	protected:
 
-		void compute_x_new(const Eigen::VectorXd &x, const Eigen::VectorXd &u, Eigen::VectorXd &out);
-		void get_F_matrix(const Eigen::VectorXd &x, const Eigen::VectorXd &u, Eigen::MatrixXd &out);
-		void get_Q_matrix(const Eigen::VectorXd &x, const Eigen::VectorXd &u, const Eigen::VectorXd &w, Eigen::MatrixXd &out);
+		void compute_x_new(const Eigen::VectorXd &x, const Eigen::VectorXd &u, Eigen::VectorXd &out) override;
+		void get_F_matrix(const Eigen::VectorXd &x, const Eigen::VectorXd &u, Eigen::MatrixXd &out) override;
+		void get_Q_matrix(const Eigen::VectorXd &x, const Eigen::VectorXd &u, const Eigen::VectorXd &w, Eigen::MatrixXd &out) override;
 
-		void get_measurement_estimate(const Eigen::VectorXd &x, Eigen::VectorXd &out);
-		void get_H_matrix(Eigen::MatrixXd &out);
-		void get_R_matrix(Eigen::MatrixXd &out);
+		void get_measurement_estimate(const Eigen::VectorXd &x, Eigen::VectorXd &out) override;
+		void get_H_matrix(Eigen::MatrixXd &out) override;
+		void get_R_matrix(Eigen::MatrixXd &out) override;
 
-		void get_noise_vect(Eigen::VectorXd &out);
-		void get_Qs_matrix(Eigen::MatrixXd &out);
+		void get_noise_vect(Eigen::VectorXd &out) override;
+		void get_Qs_matrix(Eigen::MatrixXd &out) override;
 	};
 }
 
