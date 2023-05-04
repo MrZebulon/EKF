@@ -4,36 +4,37 @@
 
 #include "../includes/TranslationRotationModel.hpp"
 
-using namespace shai::models::TRM;
+using namespace shai::models;
+using namespace Eigen;
 
-xVector TranslationRotationModel::compute_x_new(const xVector &x, const uVector &u) {
-
+void TranslationRotationModel::compute_x_new(const VectorXd  &x, const VectorXd &u, VectorXd& out) {
+	out = VectorXd::Zero(nx);
 }
 
-xxMatrix TranslationRotationModel::get_F_matrix(const xVector &x, const uVector &u) {
-
+void TranslationRotationModel::get_F_matrix(const VectorXd &x, const VectorXd  &u, MatrixXd& out) {
+	out = MatrixXd::Zero(nx, nx);
 }
 
-xxMatrix TranslationRotationModel::get_Q_matrix(const xVector &x, const uVector &u, const wVector &w) {
-
+void TranslationRotationModel::get_Q_matrix(const VectorXd &x, const VectorXd &u, const VectorXd &w, MatrixXd& out) {
+	out = MatrixXd::Zero(nx, nx);
 }
 
-zVector TranslationRotationModel::get_measurement_estimate(const xVector &x) {
-
+void  TranslationRotationModel::get_measurement_estimate(const VectorXd &x, VectorXd& out) {
+	out = VectorXd::Zero(nz);
 }
 
-zxMatrix TranslationRotationModel::get_H_matrix() {
-
+void TranslationRotationModel::get_H_matrix(MatrixXd& out) {
+	out = MatrixXd::Zero(nz, nx);
 }
 
-zzMatrix TranslationRotationModel::get_R_matrix() {
-
+void TranslationRotationModel::get_R_matrix(MatrixXd& out) {
+	out = MatrixXd::Zero(nz, nz);
 }
 
-wVector TranslationRotationModel::get_noise_vect() {
-
+void TranslationRotationModel::get_noise_vect(VectorXd& out) {
+	out = VectorXd::Zero(nw);
 }
 
-xxMatrix TranslationRotationModel::get_Qs_matrix() {
-
+void TranslationRotationModel::get_Qs_matrix(MatrixXd& out) {
+	out = MatrixXd::Zero(nx, nx);
 }

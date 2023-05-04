@@ -88,7 +88,13 @@
 		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/MEKF.hpp">
 			<Option target="shai"/>
 		</Unit>
+		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/SensorParameters.hpp">
+			<Option target="shai"/>
+		</Unit>
 		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/TranslationRotationModel.hpp">
+			<Option target="shai"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/Utils.hpp">
 			<Option target="shai"/>
 		</Unit>
 		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/src/TranslationRotationModel.cpp">

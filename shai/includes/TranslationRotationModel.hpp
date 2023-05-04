@@ -6,31 +6,28 @@
 #define SHAI_TRANSLATIONROTATIONMODEL_HPP
 
 #include "BaseModel.hpp"
-
-namespace shai::models::TRM {
-	class TranslationRotationModel : public virtual BaseModel<17, 6, 14, 1>{
+#include "SensorParameters.hpp"
+namespace shai::models {
+	class TranslationRotationModel : public virtual BaseModel{
+	public:
+		explicit TranslationRotationModel(double dt) : BaseModel(dt, 17, 6, 14, 1) {}
+	private:
+		SensorParameters<3> _accel_params = {-0.026842656242568, 0.033420780321046, -0.007947030636161,1, 2e-4};
+		SensorParameters<3> _gyro_params = {5.735129093702078e-05,-5.361232250514282e-06,3.135626159376753e-05,1e-5, 0};
+		SensorParameters<1> _baro_params = {361.3487972164834, 0.0007454259701653068, 2.8486463440220755e-06};
 	protected:
-		xVector compute_x_new(const xVector &x, const uVector &u) override;
-		xxMatrix get_F_matrix(const xVector &x, const uVector &u) override;
-		xxMatrix get_Q_matrix(const xVector &x, const uVector &u, const wVector &w) override;
 
-		zVector get_measurement_estimate(const xVector &x) override;
-		zxMatrix get_H_matrix() override;
-		zzMatrix get_R_matrix() override;
+		void compute_x_new(const Eigen::VectorXd &x, const Eigen::VectorXd &u, Eigen::VectorXd &out);
+		void get_F_matrix(const Eigen::VectorXd &x, const Eigen::VectorXd &u, Eigen::MatrixXd &out);
+		void get_Q_matrix(const Eigen::VectorXd &x, const Eigen::VectorXd &u, const Eigen::VectorXd &w, Eigen::MatrixXd &out);
 
-		wVector get_noise_vect() override;
-		xxMatrix get_Qs_matrix() override;
+		void get_measurement_estimate(const Eigen::VectorXd &x, Eigen::VectorXd &out);
+		void get_H_matrix(Eigen::MatrixXd &out);
+		void get_R_matrix(Eigen::MatrixXd &out);
+
+		void get_noise_vect(Eigen::VectorXd &out);
+		void get_Qs_matrix(Eigen::MatrixXd &out);
 	};
-
-	using xVector = TranslationRotationModel::xVector;
-	using uVector = TranslationRotationModel::uVector;
-	using zVector = TranslationRotationModel::zVector;
-	using wVector = TranslationRotationModel::wVector;
-	using xxMatrix = TranslationRotationModel::xxMatrix;
-	using xuMatrix = TranslationRotationModel::xuMatrix;
-	using uuMatrix = TranslationRotationModel::uuMatrix;
-	using zxMatrix = TranslationRotationModel::zxMatrix;
-	using zzMatrix = TranslationRotationModel::zzMatrix;
 }
 
 #endif //SHAI_TRANSLATIONROTATIONMODEL_HPP

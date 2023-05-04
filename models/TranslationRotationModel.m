@@ -21,7 +21,7 @@ classdef TranslationRotationModel < BaseModel
     %   14 : barometer bias noise
 
     properties (Constant)
-        additive_noise = 1e-6;
+        additive_noise = 1e-8;
 
         % units = m/s
         accel_bias = [-0.026842656242568 0.033420780321046 -0.007947030636161];
