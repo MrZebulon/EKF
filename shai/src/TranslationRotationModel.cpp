@@ -42,8 +42,8 @@ void TranslationRotationModel::compute_x_new(const VectorXd &x, const VectorXd &
 
 	Eigen::Vector3d delta_v{};
 
-	body_to_inertial({q.w(), q.x(), q.y(), q.z()}, {_dt*a(0) - ba(0), _dt*a(1) - ba(1), _dt*a(2) - ba(2)}, delta_v);
-	Eigen::Quaternion<double> delta_q = {1,  0.5*(_dt*w(0) - bg(0)),  0.5*(_dt*w(1) - bg(1)),  0.5*(_dt*w(2) - bg(2))};
+	body_to_inertial({q.w(), q.x(), q.y(), q.z()}, {_dt*(a(0) - ba(0)), _dt*(a(1) - ba(1)), _dt*(a(2) - ba(2))}, delta_v);
+	Eigen::Quaternion<double> delta_q = {1,  0.5*_dt*(w(0) - bg(0)),  0.5*_dt*(w(1) - bg(1)),  0.5*_dt*(w(2) - bg(2))};
 
 	q *= delta_q;
 
@@ -52,11 +52,11 @@ void TranslationRotationModel::compute_x_new(const VectorXd &x, const VectorXd &
 
 void TranslationRotationModel::get_F_matrix(const VectorXd &x, const VectorXd  &u, MatrixXd& out) {
 	Eigen::Quaternion<double> q = {x(6), x(7), x(8), x(9)};
-	Eigen::Vector3d ba {x(10), x(11), x(12)};
-	Eigen::Vector3d bg{x(13), x(14), x(15)};
+	Eigen::Vector3d ba {x(10) * _dt, x(11) * _dt, x(12) * _dt};
+	Eigen::Vector3d bg {x(13) * _dt, x(14) * _dt, x(15) * _dt};
 
-	Eigen::Vector3d a = {u(0), u(1), u(2)};
-	Eigen::Vector3d w = {u(3), u(4), u(5)};
+	Eigen::Vector3d a = {u(0) * _dt, u(1) * _dt, u(2) * _dt};
+	Eigen::Vector3d w = {u(3) * _dt, u(4) * _dt, u(5) * _dt};
 
 	// dp^dot
 	out(0, 3) = _dt;
@@ -92,7 +92,7 @@ void TranslationRotationModel::get_Q_matrix(const VectorXd &x, const VectorXd &u
 }
 
 void  TranslationRotationModel::get_measurement_estimate(const VectorXd &x, VectorXd& out) {
-	out << x(3);
+	out << x(2) + x(16);
 }
 
 void TranslationRotationModel::get_H_matrix(MatrixXd& out) {
