@@ -88,7 +88,7 @@ namespace shai{
 			_params.K.setZero();
 		}
 
-		const MEKFParameters& get_state() const {
+		const MEKFParameters& get_params() const {
 			return _params;
 		}
 	};

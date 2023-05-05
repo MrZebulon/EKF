@@ -25,13 +25,13 @@ classdef TranslationRotationModel < BaseModel
         
         % Time has been taken into account within the biases/noises/drifts
         % units = m/s
-        accel_bias = [0.002939479095936,-9.824564361239346e-04,0.002876521524881];
-        accel_noise = 2.502549187375286e-05;
-        accel_drift = 2e-4;
+        accel_bias = [0.0029394893123127377, -0.0009818539510592773, 0.0028762637247315066];
+        accel_noise = 4.7358607479753485e-09;
+        accel_drift = 3.314312818032142e-10;
 
         %units = rad/s
-        gyro_bias = [0.003828406634979,-0.001784092346493,-0.002920721117470];
-        gyro_noise = 1e-5;
+        gyro_bias = [0.0038284331173227743, -0.001784190927555866, -0.0029207138021085243];
+        gyro_noise = 2.5617707075843632e-08;
         gyro_drift = 0;
 
         % units = m
