@@ -76,7 +76,6 @@ void TranslationRotationModel::get_F_matrix(const VectorXd &x, const VectorXd &u
 }
 
 void TranslationRotationModel::get_Q_matrix(const VectorXd &x, const VectorXd &u, const VectorXd &w, MatrixXd& out) {
-	out = MatrixXd::Zero(nx, nx);
 	Eigen::Quaternion<double> q = {x(6), x(7), x(8), x(9)};
 	Eigen::Vector3d dv {w(0), w(1), w(2)};
 	Eigen::Vector3d da {w(3), w(4), w(5)};
