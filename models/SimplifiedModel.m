@@ -17,6 +17,12 @@ classdef SimplifiedModel < BaseModel
     properties (Constant)
         additive_noise = 1e-8;
         
+        % Time has NOT been taken into account within the biases/noises/drifts
+        %
+        % THIS IS LEGACY BEHAVIOR !
+        % FOR THE LOVE OF WHICHEVER GOD(S) YOU BELIVE IN, DO NOT USE THIS AS A
+        % REFERENCE !
+
         % units = m/s
         accel_bias = [-0.026842656242568 0.033420780321046 -0.007947030636161];
         accel_noise = 1;
