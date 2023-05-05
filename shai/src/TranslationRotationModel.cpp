@@ -43,14 +43,14 @@ void TranslationRotationModel::compute_x_new(const VectorXd &x, const VectorXd &
 	Eigen::Vector3d delta_v{};
 
 	body_to_inertial({q.w(), q.x(), q.y(), q.z()}, {_dt*a(0) - ba(0), _dt*a(1) - ba(1), _dt*a(2) - ba(2)}, delta_v);
-	Eigen::Quaternion<double> delta_q = {1,  0.5*(_dt*w(0) - bg(0)),  0.5*(_dt*w(1) - bg(1)),  0.5*(_dt*w(2) - bg(2))};
+	Eigen::Quaternion<double> delta_q = {1, 0.5*(_dt*w(0) - bg(0)), 0.5*(_dt*w(1) - bg(1)), 0.5*(_dt*w(2) - bg(2))};
 
 	q *= delta_q;
 
 	out << pos + vel*_dt, vel + delta_v, q.coeffs(), ba, bg, bb;
 }
 
-void TranslationRotationModel::get_F_matrix(const VectorXd &x, const VectorXd  &u, MatrixXd& out) {
+void TranslationRotationModel::get_F_matrix(const VectorXd &x, const VectorXd &u, MatrixXd& out) {
 	Eigen::Quaternion<double> q = {x(6), x(7), x(8), x(9)};
 	Eigen::Vector3d ba {x(10), x(11), x(12)};
 	Eigen::Vector3d bg {x(13), x(14), x(15)};
@@ -59,19 +59,32 @@ void TranslationRotationModel::get_F_matrix(const VectorXd &x, const VectorXd  &
 	Eigen::Vector3d w = {u(3) * _dt, u(4) * _dt, u(5) * _dt};
 
 	// dp^dot
-	out = MatrixXd::Zero(nx, nx);
+	out(0, 3) = _dt;
+	out(1, 4) = _dt;
+	out(2, 5) = _dt;
+
+	//dv^dot
+	out.row(3) << 0, 0, 0, 0, 0, 0, 2*q.w()*(a(0) - ba(0)) - 2*q.z()*(a(1) - ba(1)) + 2*q.y()*(a(2) - ba(2)), 2*q.x()*(a(0) - ba(0)) + 2*q.y()*(a(1) - ba(1)) + 2*q.z()*(a(2) - ba(2)), 2*q.x()*(a(1) - ba(1)) - 2*q.y()*(a(0) - ba(0)) + 2*q.w()*(a(2) - ba(2)), 2*q.x()*(a(2) - ba(2)) - 2*q.w()*(a(1) - ba(1)) - 2*q.z()*(a(0) - ba(0)), 0, 0, 0, - q.w()*q.w()- q.x()*q.x()+ q.y()*q.y()+ q.z()*q.z(), 2*q.w()*q.z() - 2*q.x()*q.y(), - 2*q.w()*q.y() - 2*q.x()*q.z(), 0;
+	out.row(4) << 0, 0, 0, 0, 0, 0, 2*q.z()*(a(0) - ba(0)) + 2*q.w()*(a(1) - ba(1)) - 2*q.x()*(a(2) - ba(2)), 2*q.y()*(a(0) - ba(0)) - 2*q.x()*(a(1) - ba(1)) - 2*q.w()*(a(2) - ba(2)), 2*q.x()*(a(0) - ba(0)) + 2*q.y()*(a(1) - ba(1)) + 2*q.z()*(a(2) - ba(2)), 2*q.w()*(a(0) - ba(0)) - 2*q.z()*(a(1) - ba(1)) + 2*q.y()*(a(2) - ba(2)), 0, 0, 0, - 2*q.w()*q.z() - 2*q.x()*q.y(), - q.w()*q.w()+ q.x()*q.x()- q.y()*q.y()+ q.z()*q.z(), 2*q.w()*q.x() - 2*q.y()*q.z(), 0;
+	out.row(5) << 0, 0, 0, 0, 0, 0, 2*q.x()*(a(1) - ba(1)) - 2*q.y()*(a(0) - ba(0)) + 2*q.w()*(a(2) - ba(2)), 2*q.z()*(a(0) - ba(0)) + 2*q.w()*(a(1) - ba(1)) - 2*q.x()*(a(2) - ba(2)), 2*q.z()*(a(1) - ba(1)) - 2*q.w()*(a(0) - ba(0)) - 2*q.y()*(a(2) - ba(2)), 2*q.x()*(a(0) - ba(0)) + 2*q.y()*(a(1) - ba(1)) + 2*q.z()*(a(2) - ba(2)), 0, 0, 0, 2*q.w()*q.y() - 2*q.x()*q.z(), - 2*q.w()*q.x() - 2*q.y()*q.z(), - q.w()*q.w()+ q.x()*q.x()+ q.y()*q.y()- q.z()*q.z(), 0;
+
+	//dq^dot
+	out.row(6) << 0, 0, 0, 0, 0, 0, 0, bg(0)/2 - w(0)/2, bg(1)/2 - w(1)/2, bg(2)/2 - w(2)/2, 0, 0, 0, q.x()/2, q.y()/2, q.z()/2, 0;
+	out.row(7) << 0, 0, 0, 0, 0, 0, w(0)/2 - bg(0)/2, 0, w(2)/2 - bg(2)/2, bg(1)/2 - w(1)/2, 0, 0, 0, -q.w()/2, q.z()/2, -q.y()/2, 0;
+	out.row(8) << 0, 0, 0, 0, 0, 0, w(1)/2 - bg(1)/2, bg(2)/2 - w(2)/2, 0, w(0)/2 - bg(0)/2, 0, 0, 0, -q.z()/2, -q.w()/2, q.x()/2, 0;
+	out.row(9) << 0, 0, 0, 0, 0, 0, w(2)/2 - bg(2)/2, w(1)/2 - bg(1)/2, bg(0)/2 - w(0)/2, 0, 0, 0, 0, q.y()/2, -q.x()/2, -q.w()/2, 0;
 }
 
 void TranslationRotationModel::get_Q_matrix(const VectorXd &x, const VectorXd &u, const VectorXd &w, MatrixXd& out) {
 	out = MatrixXd::Zero(nx, nx);
 }
 
-void  TranslationRotationModel::get_measurement_estimate(const VectorXd &x, VectorXd& out) {
+void TranslationRotationModel::get_measurement_estimate(const VectorXd &x, VectorXd& out) {
 	out << x(2) + x(16);
 }
 
 void TranslationRotationModel::get_H_matrix(MatrixXd& out) {
-	out << 0, 0, 1,  0, 0, 0,  0, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0;
+	out << 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
 }
 
 void TranslationRotationModel::get_R_matrix(MatrixXd& out) {
@@ -81,7 +94,7 @@ void TranslationRotationModel::get_R_matrix(MatrixXd& out) {
 void TranslationRotationModel::get_noise_vect(VectorXd& out) {
 	double scale_var = 0.5*_dt*_dt;
 
-	out <<  _accel_params.noise, _accel_params.noise, _accel_params.noise,
+	out << _accel_params.noise, _accel_params.noise, _accel_params.noise,
 			_gyro_params.noise, _gyro_params.noise, _gyro_params.noise,
 			_baro_params.noise;
 
@@ -94,7 +107,7 @@ void TranslationRotationModel::get_Qs_matrix(MatrixXd& out) {
 	double gyro_drift = scale_var * _gyro_params.drift;
 	double baro_drift = scale_var * _baro_params.drift;
 
-	out.diagonal() <<   additive_noise, additive_noise, additive_noise,
+	out.diagonal() <<  additive_noise, additive_noise, additive_noise,
 						additive_noise, additive_noise, additive_noise,
 						additive_noise, additive_noise, additive_noise, additive_noise,
 						acc_drift, acc_drift, acc_drift,
