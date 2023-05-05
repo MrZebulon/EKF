@@ -12,9 +12,9 @@ namespace shai::models {
 	public:
 		explicit TranslationRotationModel(double dt) : BaseModel(dt, 17, 6, 14, 1) {}
 	private:
-		SensorParameters<3> _accel_params = {-2.684265624256800,3.342078032104600,-0.794703063616100,0.0012548856272513666, 2e-4};
-		SensorParameters<3> _gyro_params = {0.005735129093702,-5.361232250514282e-04, 0.003135626159377,7.453818383311099e-05, 3.4790952299678595e-06};
-		SensorParameters<1> _baro_params = {361.3487972164834, 0.0007454259701653068, 2.8486463440220755e-06};
+		SensorParameters<3> _accel_params = {0.002939479095936,-9.824564361239346e-04,0.002876521524881,2.502549187375286e-05, 2e-4};
+		SensorParameters<3> _gyro_params = {5.735129093702078e-05,-5.361232250514282e-06,3.135626159376753e-05,1e-5, 0};
+		SensorParameters<1> _baro_params = {399.23657624056926, 0.0007454259701653068, 2.8486463440220755e-06};
 	protected:
 
 		Eigen::VectorXd get_init_state() override;

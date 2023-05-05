@@ -21,20 +21,20 @@ classdef TranslationRotationModel < BaseModel
     %   14 : barometer bias noise
 
     properties (Constant)
-        additive_noise = 1e-8;
+        additive_noise = 1e-6;
 
         % units = m/s
-        accel_bias = [-2.684265624256800,3.342078032104600,-0.794703063616100];
-        accel_noise = 0.0012548856272513666;
-        accel_bias_noise = 2e-6;
+        accel_bias = [0.002939479095936,-9.824564361239346e-04,0.002876521524881];
+        accel_noise = 2.502549187375286e-05;
+        accel_bias_noise = 2e-4;
 
         %units = rad/s
-        gyro_bias = [0.005735129093702,-5.361232250514282e-04, 0.003135626159377];
-        gyro_noise = 7.453818383311099e-05;
-        gyro_bias_noise = 3.4790952299678595e-06;
+        gyro_bias = [0.003828406634979,-0.001784092346493,-0.002920721117470];
+        gyro_noise = 1e-5;
+        gyro_bias_noise = 0;
 
         % units = m
-        baro_bias = 361.3487972164834;
+        baro_bias = 399.23657624056926;
         baro_noise = 0.0007454259701653068;
         baro_bias_noise = 2.8486463440220755e-06;
 
@@ -72,8 +72,8 @@ classdef TranslationRotationModel < BaseModel
 
         function x_new = compute_x_new(obj, x, u)
             dt = obj.dt;
-            delta_acc = Utils.body_to_inertial_frame(x(7:10)', dt * (u(1:3)' - x(11:13)));
-            delta_q = quaternion([1,  dt * (u(4:6) - x(14:16)') / 2]);
+            delta_acc = Utils.body_to_inertial_frame(x(7:10)', (dt*u(1:3)' - x(11:13)));
+            delta_q = quaternion([1,  (dt * u(4:6) - x(14:16)') / 2]);
             dx = [
                 x(4) * dt
                 x(5) * dt
@@ -109,8 +109,8 @@ classdef TranslationRotationModel < BaseModel
             q0 = x(7); q1 = x(8); q2 = x(9); q3 = x(10);
             a_x = u(1) * obj.dt; a_y = u(2) * obj.dt; a_z = u(3) * obj.dt;
             w_x = u(4) * obj.dt; w_y = u(5) * obj.dt; w_z = u(6) * obj.dt;
-            b_acc_x = x(11) * obj.dt; b_acc_y = x(12) * obj.dt; b_acc_z = x(13) * obj.dt;
-            b_gyro_x = x(14) * obj.dt; b_gyro_y = x(15) * obj.dt; b_gyro_z = x(16) * obj.dt;
+            b_acc_x = x(11); b_acc_y = x(12); b_acc_z = x(13);
+            b_gyro_x = x(14); b_gyro_y = x(15); b_gyro_z = x(16);
 
             % dp^dot
             F(1:3, 4:6) = eye(3) * obj.dt;
@@ -181,4 +181,3 @@ classdef TranslationRotationModel < BaseModel
         end
     end
 end
-
