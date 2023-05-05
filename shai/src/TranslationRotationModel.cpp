@@ -14,7 +14,7 @@ using namespace Eigen;
 Eigen::VectorXd TranslationRotationModel::get_init_state() {
 	Eigen::Vector3d ba {_accel_params.bias[0], _accel_params.bias[1], _accel_params.bias[2]};
 	Eigen::Vector3d bg {_gyro_params.bias[0], _gyro_params.bias[1], _gyro_params.bias[2]};
-	double bb = _baro_params.bias[0];
+	double bb = _baro_params.bias[0;
 
 	Eigen::VectorXd x_init(nx);
 	x_init << Eigen::VectorXd::Zero(10), ba, bg, bb;
@@ -77,6 +77,18 @@ void TranslationRotationModel::get_F_matrix(const VectorXd &x, const VectorXd &u
 
 void TranslationRotationModel::get_Q_matrix(const VectorXd &x, const VectorXd &u, const VectorXd &w, MatrixXd& out) {
 	out = MatrixXd::Zero(nx, nx);
+	Eigen::Quaternion<double> q = {x(6), x(7), x(8), x(9)};
+	Eigen::Vector3d dv {w(0), w(1), w(2)};
+	Eigen::Vector3d da {w(3), w(4), w(5)};
+
+	out.row(3) << 0, 0, 0, dv(1)*pow(2*q.w()*q.z() - 2*q.x()*q.y(), 2) + dv(2)*pow(2*q.w()*q.y() + 2*q.x()*q.z(),2) + dv(0)*pow(q.w()*q.w() + q.x()*q.x() - q.y()*q.y() - q.z()*q.z(), 2), dv(0)*(2*q.w()*q.z() + 2*q.x()*q.y())*(q.w()*q.w() + q.x()*q.x() - q.y()*q.y() - q.z()*q.z()) - dv(1)*(2*q.w()*q.z() - 2*q.x()*q.y())*(q.w()*q.w() - q.x()*q.x() + q.y()*q.y() - q.z()*q.z()) - dv(2)*(2*q.w()*q.x() - 2*q.y()*q.z())*(2*q.w()*q.y() + 2*q.x()*q.z()), dv(2)*(2*q.w()*q.y() + 2*q.x()*q.z())*(q.w()*q.w() - q.x()*q.x() - q.y()*q.y() + q.z()*q.z()) - dv(0)*(2*q.w()*q.y() - 2*q.x()*q.z())*(q.w()*q.w() + q.x()*q.x() - q.y()*q.y() - q.z()*q.z()) - dv(1)*(2*q.w()*q.x() + 2*q.y()*q.z())*(2*q.w()*q.z() - 2*q.x()*q.y()), 0, 0, 0, 0,  0, 0, 0,  0, 0, 0, 0;
+	out.row(4) << 0, 0, 0, dv(0)*(2*q.w()*q.z() + 2*q.x()*q.y())*(q.w()*q.w() + q.x()*q.x() - q.y()*q.y() - q.z()*q.z()) - dv(1)*(2*q.w()*q.z() - 2*q.x()*q.y())*(q.w()*q.w() - q.x()*q.x() + q.y()*q.y() - q.z()*q.z()) - dv(2)*(2*q.w()*q.x() - 2*q.y()*q.z())*(2*q.w()*q.y() + 2*q.x()*q.z()), dv(0)*pow(2*q.w()*q.z() + 2*q.x()*q.y(), 2) + dv(2)*pow(2*q.w()*q.x() - 2*q.y()*q.z(), 2) + dv(1)*pow(q.w()*q.w() - q.x()*q.x() + q.y()*q.y() - q.z()*q.z(), 2), dv(1)*(2*q.w()*q.x() + 2*q.y()*q.z())*(q.w()*q.w() - q.x()*q.x() + q.y()*q.y() - q.z()*q.z()) - dv(2)*(2*q.w()*q.x() - 2*q.y()*q.z())*(q.w()*q.w() - q.x()*q.x() - q.y()*q.y() + q.z()*q.z()) - dv(0)*(2*q.w()*q.y() - 2*q.x()*q.z())*(2*q.w()*q.z() + 2*q.x()*q.y()), 0, 0, 0, 0,  0, 0, 0,  0, 0, 0, 0;
+	out.row(5) << 0, 0, 0, dv(2)*(2*q.w()*q.y() + 2*q.x()*q.z())*(q.w()*q.w() - q.x()*q.x() - q.y()*q.y() + q.z()*q.z()) - dv(0)*(2*q.w()*q.y() - 2*q.x()*q.z())*(q.w()*q.w() + q.x()*q.x() - q.y()*q.y() - q.z()*q.z()) - dv(1)*(2*q.w()*q.x() + 2*q.y()*q.z())*(2*q.w()*q.z() - 2*q.x()*q.y()), dv(1)*(2*q.w()*q.x() + 2*q.y()*q.z())*(q.w()*q.w() - q.x()*q.x() + q.y()*q.y() - q.z()*q.z()) - dv(2)*(2*q.w()*q.x() - 2*q.y()*q.z())*(q.w()*q.w() - q.x()*q.x() - q.y()*q.y() + q.z()*q.z()) - dv(0)*(2*q.w()*q.y() - 2*q.x()*q.z())*(2*q.w()*q.z() + 2*q.x()*q.y()), dv(0)*pow(2*q.w()*q.y() - 2*q.x()*q.z(), 2) + dv(1)*pow(2*q.w()*q.x() + 2*q.y()*q.z(), 2) + dv(2)*pow(q.w()*q.w() - q.x()*q.x() - q.y()*q.y() + q.z()*q.z(), 2), 0, 0, 0, 0,  0, 0, 0,  0, 0, 0, 0;
+
+	out.row(6) << 0, 0, 0,  0, 0, 0, (da(0)*q.x()*q.x())/4 + (da(1)*q.y()*q.y())/4 + (da(2)*q.z()*q.z())/4, (da(1)*q.y()*q.z())/4 - (da(0)*q.w()*q.x())/4 - (da(2)*q.y()*q.z())/4, (da(2)*q.x()*q.z())/4 - (da(1)*q.w()*q.y())/4 - (da(0)*q.x()*q.z())/4, (da(0)*q.x()*q.y())/4 - (da(1)*q.x()*q.y())/4 - (da(2)*q.w()*q.z())/4,  0, 0, 0,   0, 0, 0,  0;
+	out.row(7) << 0, 0, 0,  0, 0, 0, (da(1)*q.y()*q.z())/4 - (da(0)*q.w()*q.x())/4 - (da(2)*q.y()*q.z())/4, (da(0)*q.w()*q.w())/4 + (da(2)*q.y()*q.y())/4 + (da(1)*q.z()*q.z())/4, (da(0)*q.w()*q.z())/4 - (da(1)*q.w()*q.z())/4 - (da(2)*q.x()*q.y())/4, (da(2)*q.w()*q.y())/4 - (da(1)*q.x()*q.z())/4 - (da(0)*q.w()*q.y())/4,  0, 0, 0,   0, 0, 0,  0;
+	out.row(8) << 0, 0, 0,  0, 0, 0, (da(2)*q.x()*q.z())/4 - (da(1)*q.w()*q.y())/4 - (da(0)*q.x()*q.z())/4, (da(0)*q.w()*q.z())/4 - (da(1)*q.w()*q.z())/4 - (da(2)*q.x()*q.y())/4, (da(1)*q.w()*q.w())/4 + (da(2)*q.x()*q.x())/4 + (da(0)*q.z()*q.z())/4, (da(1)*q.w()*q.x())/4 - (da(0)*q.y()*q.z())/4 - (da(2)*q.w()*q.x())/4,  0, 0, 0,   0, 0, 0,  0;
+	out.row(9) << 0, 0, 0, 0, 0, 0, (da(0)*q.x()*q.y())/4 - (da(1)*q.x()*q.y())/4 - (da(2)*q.w()*q.z())/4, (da(2)*q.w()*q.y())/4 - (da(1)*q.x()*q.z())/4 - (da(0)*q.w()*q.y())/4, (da(1)*q.w()*q.x())/4 - (da(0)*q.y()*q.z())/4 - (da(2)*q.w()*q.x())/4,(da(2)*q.w()*q.w())/4 + (da(1)*q.x()*q.x())/4 + (da(0)*q.y()*q.y())/4,   0, 0, 0,   0, 0, 0,  0;
 }
 
 void TranslationRotationModel::get_measurement_estimate(const VectorXd &x, VectorXd& out) {

@@ -22,21 +22,22 @@ classdef TranslationRotationModel < BaseModel
 
     properties (Constant)
         additive_noise = 1e-6;
-
+        
+        % Time has been taken into account within the biases/noises/drifts
         % units = m/s
         accel_bias = [0.002939479095936,-9.824564361239346e-04,0.002876521524881];
         accel_noise = 2.502549187375286e-05;
-        accel_bias_noise = 2e-4;
+        accel_drift = 2e-4;
 
         %units = rad/s
         gyro_bias = [0.003828406634979,-0.001784092346493,-0.002920721117470];
         gyro_noise = 1e-5;
-        gyro_bias_noise = 0;
+        gyro_drift = 0;
 
         % units = m
         baro_bias = 399.23657624056926;
         baro_noise = 0.0007454259701653068;
-        baro_bias_noise = 2.8486463440220755e-06;
+        baro_drift = 2.8486463440220755e-06;
 
         baro_measurement_uncertainty = 0.1;
     end
@@ -168,9 +169,9 @@ classdef TranslationRotationModel < BaseModel
             Fs = 1/obj.dt;
 
             scale_var = 0.5*(1./(Fs.^2));
-            vel_delta_bias_sigma = scale_var.* obj.accel_bias_noise;
-            ang_vel_delta_bias_sigma = scale_var.* obj.gyro_bias_noise;
-            pos_delta_bias_sigma = scale_var.* obj.baro_bias_noise;
+            vel_delta_bias_sigma = scale_var.* obj.accel_drift;
+            ang_vel_delta_bias_sigma = scale_var.* obj.gyro_drift;
+            pos_delta_bias_sigma = scale_var.* obj.baro_drift;
 
             Qs = diag([obj.additive_noise.*ones(1,10), vel_delta_bias_sigma.*ones(1,3), ang_vel_delta_bias_sigma.*ones(1,3), pos_delta_bias_sigma.*ones(1,1)]);
             w = scale_var.*[obj.accel_noise.*ones(1,3), obj.gyro_noise.*ones(1,3), obj.baro_noise.*ones(1,1)];
