@@ -129,14 +129,9 @@ classdef TranslationRotationModelV2 < BaseModel
         end
 
         function Q = get_Q_matrix(obj, x, u, w)
-            q0 = x(7);
-            q1 = x(8);
-            q2 = x(9);
-            q3 = x(10);
-            
             G = zeros(17, 7);
-            G(4:6, 1:3) = Utils.rotmat([q0, q1, q2, q3]);
-            G(7:10, 4:7) = 0.5.*Utils.hamilton_product_as_matrix([q0, q1, q2, q3]);
+            G(4:6, 1:3) = Utils.rotmat(x(7:10));
+            G(7:10, 4:7) = 0.5.*Utils.hamilton_product_as_matrix(x(7:10));
 
             Q = G*diag([w(1:3), 0, w(4:6)])*(G.');
         end
