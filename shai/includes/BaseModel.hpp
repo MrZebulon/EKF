@@ -5,7 +5,7 @@
 #ifndef SHAI_BASEMODEL_H
 #define SHAI_BASEMODEL_H
 
-#include "eigen3/Eigen/Eigen"
+#include <eigen3/Eigen/Eigen>
 
 namespace shai::models {
 	class BaseModel{

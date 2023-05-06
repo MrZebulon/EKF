@@ -4,8 +4,8 @@
 
 #include <cmath>
 
-#include "../includes/TranslationRotationModel.hpp"
-#include "../includes/Utils.hpp"
+#include "TranslationRotationModel.hpp"
+#include "Utils.hpp"
 
 using namespace std;
 using namespace shai::models;

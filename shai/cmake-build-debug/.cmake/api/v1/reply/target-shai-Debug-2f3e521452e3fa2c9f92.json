@@ -10,7 +10,8 @@
 	{
 		"commands" : 
 		[
-			"add_executable"
+			"add_executable",
+			"target_include_directories"
 		],
 		"files" : 
 		[
@@ -26,6 +27,18 @@
 				"file" : 0,
 				"line" : 6,
 				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 11,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 12,
+				"parent" : 0
 			}
 		]
 	},
@@ -39,6 +52,17 @@
 				},
 				{
 					"fragment" : "-std=gnu++23"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 2,
+					"path" : "/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes"
+				},
+				{
+					"backtrace" : 3,
+					"path" : "/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/eigen3"
 				}
 			],
 			"language" : "CXX",
@@ -98,7 +122,8 @@
 				2,
 				4,
 				5,
-				6
+				6,
+				7
 			]
 		}
 	],
@@ -139,6 +164,11 @@
 		{
 			"backtrace" : 1,
 			"path" : "includes/Utils.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "includes/TranslationRotationModelV2.hpp",
 			"sourceGroupIndex" : 1
 		}
 	],

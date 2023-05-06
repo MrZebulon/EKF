@@ -24,6 +24,8 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add directory="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes"/>
+					<Add directory="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/eigen3"/>
 					<Add directory="/usr/include/c++/11"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
 					<Add directory="/usr/include/c++/11/backward"/>
@@ -46,6 +48,8 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add directory="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes"/>
+					<Add directory="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/eigen3"/>
 					<Add directory="/usr/include/c++/11"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
 					<Add directory="/usr/include/c++/11/backward"/>
@@ -92,6 +96,9 @@
 			<Option target="shai"/>
 		</Unit>
 		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/TranslationRotationModel.hpp">
+			<Option target="shai"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/TranslationRotationModelV2.hpp">
 			<Option target="shai"/>
 		</Unit>
 		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/Utils.hpp">
