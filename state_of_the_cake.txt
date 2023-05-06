@@ -53,10 +53,6 @@
 	-> mesure de acc_z dégueulasse
 	-> se stabilise dans un range acceptable in fine
 
-* q(3) climb : why ?
-	-> alors que la norme reste globamlement la même
-	-> TODO
-
 --------------------------- modèle future ---------------------------------
 
 * magnétomètre : tracked

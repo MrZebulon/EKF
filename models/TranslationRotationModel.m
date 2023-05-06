@@ -30,7 +30,7 @@ classdef TranslationRotationModel < BaseModel
         accel_drift = 3.314312818032142e-10;
 
         %units = rad/s
-        gyro_bias = [0.0038284331173227743, -0.001784190927555866, -0.0029207138021085243];
+        gyro_bias = [0.0038284331173227743, -0.001784190927555866, -0.0028707138021085243];
         gyro_noise = 2.5617707075843632e-08;
         gyro_drift = 0;
 
