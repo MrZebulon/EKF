@@ -3,13 +3,6 @@
 
 CMakeFiles/shai.dir/src/TranslationRotationModel.cpp.o: ../src/TranslationRotationModel.cpp \
   /usr/include/stdc-predef.h \
-  ../includes/TranslationRotationModel.hpp \
-  ../includes/BaseModel.hpp \
-  /usr/include/eigen3/Eigen/Eigen \
-  /usr/include/eigen3/Eigen/Dense \
-  /usr/include/eigen3/Eigen/Core \
-  /usr/include/eigen3/Eigen/src/Core/util/DisableStupidWarnings.h \
-  /usr/include/eigen3/Eigen/src/Core/util/Macros.h \
   /usr/include/c++/11/cmath \
   /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \
@@ -108,6 +101,13 @@ CMakeFiles/shai.dir/src/TranslationRotationModel.cpp.o: ../src/TranslationRotati
   /usr/include/c++/11/tr1/poly_hermite.tcc \
   /usr/include/c++/11/tr1/poly_laguerre.tcc \
   /usr/include/c++/11/tr1/riemann_zeta.tcc \
+  ../includes/TranslationRotationModel.hpp \
+  ../includes/BaseModel.hpp \
+  /usr/include/eigen3/Eigen/Eigen \
+  /usr/include/eigen3/Eigen/Dense \
+  /usr/include/eigen3/Eigen/Core \
+  /usr/include/eigen3/Eigen/src/Core/util/DisableStupidWarnings.h \
+  /usr/include/eigen3/Eigen/src/Core/util/Macros.h \
   /usr/include/eigen3/Eigen/src/Core/util/ConfigureVectorization.h \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/mmintrin.h \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/emmintrin.h \
@@ -563,13 +563,16 @@ CMakeFiles/shai.dir/src/TranslationRotationModel.cpp.o: ../src/TranslationRotati
   /usr/include/c++/11/bits/stl_list.h \
   /usr/include/c++/11/bits/allocated_ptr.h \
   /usr/include/c++/11/bits/list.tcc \
-  ../includes/SensorParameters.hpp
+  ../includes/SensorParameters.hpp \
+  ../includes/Utils.hpp
 
 CMakeFiles/shai.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/stdc-predef.h
 
 
 ../src/main.cpp:
+
+../includes/Utils.hpp:
 
 ../includes/SensorParameters.hpp:
 
@@ -771,6 +774,26 @@ CMakeFiles/shai.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h:
 
+/usr/include/c++/11/bits/char_traits.h:
+
+/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h:
+
+/usr/include/eigen3/Eigen/src/Cholesky/LDLT.h:
+
+/usr/include/eigen3/Eigen/src/Core/Assign.h:
+
+/usr/include/x86_64-linux-gnu/bits/pthreadtypes.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h:
+
+/usr/include/c++/11/backward/binders.h:
+
+/usr/include/x86_64-linux-gnu/bits/select.h:
+
+/usr/include/x86_64-linux-gnu/bits/time.h:
+
+/usr/include/eigen3/Eigen/src/Core/util/IntegralConstant.h:
+
 /usr/include/x86_64-linux-gnu/sys/types.h:
 
 /usr/include/eigen3/Eigen/src/Core/SolveTriangular.h:
@@ -795,8 +818,6 @@ CMakeFiles/shai.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/waitflags.h:
 
-/usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h:
-
 /usr/include/x86_64-linux-gnu/bits/types/error_t.h:
 
 /usr/include/eigen3/Eigen/Eigenvalues:
@@ -805,51 +826,33 @@ CMakeFiles/shai.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/xmmintrin.h:
 
+/usr/include/x86_64-linux-gnu/bits/long-double.h:
+
+/usr/include/x86_64-linux-gnu/bits/byteswap.h:
+
+/usr/include/c++/11/limits:
+
 /usr/include/c++/11/ext/aligned_buffer.h:
 
 /usr/include/c++/11/bits/locale_classes.tcc:
 
 /usr/include/c++/11/bits/concept_check.h:
 
-/usr/include/x86_64-linux-gnu/bits/flt-eval-method.h:
+/usr/include/x86_64-linux-gnu/bits/types/clock_t.h:
 
-/usr/include/c++/11/bits/locale_classes.h:
+/usr/include/x86_64-linux-gnu/sys/cdefs.h:
 
-/usr/include/eigen3/Eigen/SVD:
+/usr/include/eigen3/Eigen/src/Core/DiagonalProduct.h:
 
-/usr/include/c++/11/tr1/gamma.tcc:
+/usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h:
 
-/usr/include/c++/11/ext/string_conversions.h:
+/usr/lib/gcc/x86_64-linux-gnu/11/include/mm_malloc.h:
 
-/usr/include/x86_64-linux-gnu/bits/iscanonical.h:
+/usr/include/x86_64-linux-gnu/bits/time64.h:
 
-/usr/include/eigen3/Eigen/src/SparseLU/SparseLU_panel_bmod.h:
+/usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h:
 
-/usr/include/x86_64-linux-gnu/bits/struct_mutex.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h:
-
-/usr/include/eigen3/Eigen/src/Core/IO.h:
-
-/usr/include/eigen3/Eigen/src/SparseLU/SparseLU_heap_relax_snode.h:
-
-/usr/include/c++/11/cassert:
-
-/usr/include/c++/11/bits/stl_algo.h:
-
-/usr/include/eigen3/Eigen/src/Core/BooleanRedux.h:
-
-/usr/include/c++/11/tr1/riemann_zeta.tcc:
-
-/usr/include/eigen3/Eigen/src/Core/util/Macros.h:
-
-/usr/include/asm-generic/errno-base.h:
-
-/usr/include/eigen3/Eigen/src/Core/util/DisableStupidWarnings.h:
-
-/usr/include/eigen3/Eigen/src/Core/products/SelfadjointRank2Update.h:
-
-/usr/include/c++/11/debug/assertions.h:
+/usr/include/eigen3/Eigen/src/Eigenvalues/HessenbergDecomposition.h:
 
 /usr/include/c++/11/debug/debug.h:
 
@@ -857,15 +860,27 @@ CMakeFiles/shai.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/eigen3/Eigen/Sparse:
 
-/usr/include/c++/11/bits/ios_base.h:
+/usr/include/c++/11/bits/range_access.h:
 
-/usr/include/eigen3/Eigen/src/SparseLU/SparseLU_gemm_kernel.h:
+/usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
 
-/usr/include/endian.h:
+/usr/include/eigen3/Eigen/src/Core/Redux.h:
 
-/usr/include/c++/11/bits/cpp_type_traits.h:
+/usr/include/x86_64-linux-gnu/bits/types.h:
 
-/usr/include/eigen3/Eigen/src/SparseQR/SparseQR.h:
+/usr/include/c++/11/streambuf:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/ctype_base.h:
+
+/usr/include/eigen3/Eigen/src/SparseCore/SparseRef.h:
+
+/usr/include/eigen3/Eigen/Eigen:
+
+/usr/include/x86_64-linux-gnu/bits/posix_opt.h:
+
+/usr/include/eigen3/Eigen/src/Eigenvalues/ComplexEigenSolver.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/__locale_t.h:
 
 /usr/include/c++/11/bits/allocator.h:
 
@@ -883,7 +898,39 @@ CMakeFiles/shai.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/eigen3/Eigen/src/Core/arch/SSE/Complex.h:
 
-/usr/include/x86_64-linux-gnu/sys/select.h:
+/usr/include/eigen3/Eigen/src/Core/util/MKL_support.h:
+
+/usr/include/c++/11/ext/numeric_traits.h:
+
+/usr/include/c++/11/bits/iterator_concepts.h:
+
+/usr/include/c++/11/bits/ios_base.h:
+
+/usr/include/c++/11/bits/ranges_algobase.h:
+
+/usr/include/x86_64-linux-gnu/bits/fp-logb.h:
+
+/usr/include/eigen3/Eigen/src/SparseLU/SparseLU_gemm_kernel.h:
+
+/usr/include/endian.h:
+
+/usr/include/c++/11/bits/cpp_type_traits.h:
+
+/usr/include/eigen3/Eigen/src/SparseQR/SparseQR.h:
+
+/usr/include/eigen3/Eigen/src/Eigenvalues/EigenSolver.h:
+
+/usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
+
+/usr/include/c++/11/tr1/gamma.tcc:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h:
+
+/usr/include/c++/11/tr1/legendre_function.tcc:
+
+/usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h:
+
+/usr/include/eigen3/Eigen/src/Core/products/GeneralBlockPanelKernel.h:
 
 /usr/include/c++/11/bits/stl_iterator_base_funcs.h:
 
@@ -896,6 +943,10 @@ CMakeFiles/shai.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
 
 /usr/include/eigen3/Eigen/src/plugins/CommonCwiseBinaryOps.h:
+
+/usr/include/x86_64-linux-gnu/asm/errno.h:
+
+/usr/include/eigen3/Eigen/IterativeLinearSolvers:
 
 /usr/include/eigen3/Eigen/src/SparseLU/SparseLU_Memory.h:
 
@@ -911,36 +962,6 @@ CMakeFiles/shai.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/eigen3/Eigen/src/SparseCore/SparsePermutation.h:
 
-/usr/include/x86_64-linux-gnu/bits/types/__locale_t.h:
-
-/usr/include/c++/11/bits/alloc_traits.h:
-
-/usr/include/errno.h:
-
-/usr/include/eigen3/Eigen/Dense:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h:
-
-/usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h:
-
-/usr/include/c++/11/tr1/legendre_function.tcc:
-
-/usr/include/eigen3/Eigen/src/Core/products/GeneralBlockPanelKernel.h:
-
-/usr/include/eigen3/Eigen/src/Core/util/MKL_support.h:
-
-/usr/include/c++/11/ext/numeric_traits.h:
-
-/usr/include/c++/11/bits/iterator_concepts.h:
-
-/usr/include/eigen3/Eigen/Core:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h:
-
-/usr/include/c++/11/bits/stl_construct.h:
-
-/usr/include/eigen3/Eigen/src/Core/ReturnByValue.h:
-
 /usr/include/eigen3/Eigen/src/SparseCore/SparseFuzzy.h:
 
 /usr/include/c++/11/system_error:
@@ -955,91 +976,31 @@ CMakeFiles/shai.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/wordsize.h:
 
-/usr/include/x86_64-linux-gnu/bits/types/clock_t.h:
+/usr/include/x86_64-linux-gnu/bits/flt-eval-method.h:
 
-/usr/include/x86_64-linux-gnu/sys/cdefs.h:
+/usr/include/c++/11/bits/locale_classes.h:
 
-/usr/include/eigen3/Eigen/src/Core/DiagonalProduct.h:
+/usr/include/eigen3/Eigen/SVD:
 
-/usr/include/eigen3/Eigen/IterativeLinearSolvers:
-
-/usr/include/x86_64-linux-gnu/asm/errno.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h:
-
-/usr/include/string.h:
-
-../includes/BaseModel.hpp:
-
-/usr/include/alloca.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/mm_malloc.h:
-
-/usr/include/x86_64-linux-gnu/bits/time64.h:
-
-/usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h:
-
-/usr/include/eigen3/Eigen/src/Eigenvalues/HessenbergDecomposition.h:
-
-/usr/include/c++/11/streambuf:
-
-/usr/include/eigen3/Eigen/src/Core/products/GeneralMatrixVector.h:
-
-/usr/include/eigen3/Eigen/src/Core/CwiseTernaryOp.h:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/ctype_base.h:
-
-/usr/include/eigen3/Eigen/src/SparseCore/SparseRef.h:
-
-/usr/include/eigen3/Eigen/Eigen:
-
-/usr/include/x86_64-linux-gnu/bits/fp-logb.h:
-
-/usr/include/c++/11/bits/ranges_algobase.h:
-
-/usr/include/x86_64-linux-gnu/bits/posix_opt.h:
-
-/usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
-
-/usr/include/eigen3/Eigen/src/Eigenvalues/EigenSolver.h:
-
-/usr/include/eigen3/Eigen/src/Eigenvalues/ComplexEigenSolver.h:
-
-/usr/include/x86_64-linux-gnu/bits/long-double.h:
-
-/usr/include/x86_64-linux-gnu/bits/byteswap.h:
-
-../src/TranslationRotationModel.cpp:
-
-/usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h:
+/usr/include/x86_64-linux-gnu/c++/11/bits/cpu_defines.h:
 
 /usr/include/x86_64-linux-gnu/bits/timesize.h:
 
 /usr/include/eigen3/Eigen/src/Core/Solve.h:
 
-/usr/include/x86_64-linux-gnu/c++/11/bits/cpu_defines.h:
+/usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h:
 
-/usr/include/x86_64-linux-gnu/bits/math-vector.h:
+../src/TranslationRotationModel.cpp:
 
-/usr/include/c++/11/complex:
+/usr/include/c++/11/ext/string_conversions.h:
 
-/usr/include/c++/11/limits:
+/usr/include/x86_64-linux-gnu/bits/iscanonical.h:
 
-/usr/include/c++/11/bits/range_access.h:
-
-/usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
-
-/usr/include/eigen3/Eigen/src/Core/Redux.h:
-
-/usr/include/x86_64-linux-gnu/bits/types.h:
+/usr/include/eigen3/Eigen/src/SparseLU/SparseLU_panel_bmod.h:
 
 /usr/include/c++/11/bits/basic_string.h:
 
 /usr/include/eigen3/Eigen/src/plugins/IndexedViewMethods.h:
-
-/usr/include/x86_64-linux-gnu/bits/mathcalls.h:
-
-/usr/include/x86_64-linux-gnu/bits/endian.h:
 
 /usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h:
 
@@ -1048,10 +1009,6 @@ CMakeFiles/shai.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h:
 
 /usr/include/c++/11/bits/exception_defines.h:
-
-/usr/include/eigen3/Eigen/src/Core/NestByValue.h:
-
-/usr/include/c++/11/tr1/modified_bessel_func.tcc:
 
 /usr/include/x86_64-linux-gnu/bits/endianness.h:
 
@@ -1071,23 +1028,35 @@ CMakeFiles/shai.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/bits/predefined_ops.h:
 
-/usr/include/c++/11/backward/binders.h:
+/usr/include/x86_64-linux-gnu/sys/select.h:
 
-/usr/include/x86_64-linux-gnu/bits/select.h:
+/usr/include/c++/11/cassert:
 
-/usr/include/x86_64-linux-gnu/bits/time.h:
+/usr/include/c++/11/bits/stl_algo.h:
 
-/usr/include/eigen3/Eigen/src/Core/util/IntegralConstant.h:
+/usr/include/c++/11/tr1/modified_bessel_func.tcc:
 
-/usr/include/eigen3/Eigen/src/Core/Assign.h:
+/usr/include/eigen3/Eigen/src/Core/NestByValue.h:
 
-/usr/include/x86_64-linux-gnu/bits/pthreadtypes.h:
+/usr/include/eigen3/Eigen/src/Core/BooleanRedux.h:
 
-/usr/include/c++/11/bits/char_traits.h:
+/usr/include/c++/11/complex:
 
-/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h:
+/usr/include/x86_64-linux-gnu/bits/math-vector.h:
 
-/usr/include/eigen3/Eigen/src/Cholesky/LDLT.h:
+/usr/include/c++/11/tr1/riemann_zeta.tcc:
+
+/usr/include/x86_64-linux-gnu/bits/endian.h:
+
+/usr/include/x86_64-linux-gnu/bits/mathcalls.h:
+
+/usr/include/x86_64-linux-gnu/bits/struct_mutex.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h:
+
+/usr/include/eigen3/Eigen/src/Core/IO.h:
+
+/usr/include/eigen3/Eigen/src/SparseLU/SparseLU_heap_relax_snode.h:
 
 /usr/include/c++/11/bits/sstream.tcc:
 
@@ -1096,6 +1065,12 @@ CMakeFiles/shai.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/c++/11/climits:
 
 /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h:
+
+/usr/include/alloca.h:
+
+/usr/include/string.h:
+
+../includes/BaseModel.hpp:
 
 /usr/include/c++/11/bits/specfun.h:
 
@@ -1129,7 +1104,21 @@ CMakeFiles/shai.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11/bits/ranges_cmp.h:
 
+/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h:
+
+/usr/include/c++/11/bits/stl_construct.h:
+
+/usr/include/eigen3/Eigen/Core:
+
+/usr/include/eigen3/Eigen/src/Core/ReturnByValue.h:
+
+/usr/include/eigen3/Eigen/src/Core/CwiseTernaryOp.h:
+
+/usr/include/eigen3/Eigen/src/Core/products/GeneralMatrixVector.h:
+
 /usr/include/c++/11/tr1/exp_integral.tcc:
+
+/usr/include/c++/11/debug/assertions.h:
 
 /usr/include/eigen3/Eigen/src/Core/BandMatrix.h:
 
@@ -1139,15 +1128,7 @@ CMakeFiles/shai.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/wchar.h:
 
-/usr/include/eigen3/Eigen/src/SparseCore/AmbiVector.h:
-
-/usr/include/c++/11/cstdlib:
-
 /usr/include/c++/11/tr1/poly_laguerre.tcc:
-
-../includes/TranslationRotationModel.hpp:
-
-/usr/include/c++/11/bits/std_mutex.h:
 
 /usr/include/c++/11/bits/localefwd.h:
 
@@ -1155,9 +1136,31 @@ CMakeFiles/shai.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/eigen3/Eigen/src/QR/ColPivHouseholderQR.h:
 
-/usr/include/eigen3/Eigen/src/SparseCore/ConservativeSparseSparseProduct.h:
+/usr/include/c++/11/bits/std_mutex.h:
+
+../includes/TranslationRotationModel.hpp:
+
+/usr/include/c++/11/bits/alloc_traits.h:
+
+/usr/include/errno.h:
+
+/usr/include/eigen3/Eigen/Dense:
+
+/usr/include/c++/11/cstdlib:
+
+/usr/include/eigen3/Eigen/src/SparseCore/AmbiVector.h:
+
+/usr/include/asm-generic/errno-base.h:
+
+/usr/include/eigen3/Eigen/src/Core/util/DisableStupidWarnings.h:
+
+/usr/include/eigen3/Eigen/src/Core/products/SelfadjointRank2Update.h:
 
 /usr/include/c++/11/tr1/poly_hermite.tcc:
+
+/usr/include/eigen3/Eigen/src/SparseCore/ConservativeSparseSparseProduct.h:
+
+/usr/include/eigen3/Eigen/src/Core/util/Macros.h:
 
 /usr/include/c++/11/list:
 
@@ -1457,9 +1460,9 @@ CMakeFiles/shai.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/eigen3/Eigen/src/Core/products/TriangularSolverVector.h:
 
-/usr/include/eigen3/Eigen/src/SparseLU/SparseLU_column_bmod.h:
-
 /usr/include/eigen3/Eigen/src/SparseCore/SparseRedux.h:
+
+/usr/include/eigen3/Eigen/src/SparseLU/SparseLU_column_bmod.h:
 
 /usr/include/eigen3/Eigen/src/Geometry/Rotation2D.h:
 

@@ -14,7 +14,7 @@ using namespace Eigen;
 Eigen::VectorXd TranslationRotationModel::get_init_state() {
 	Eigen::Vector3d ba {_accel_params.bias[0], _accel_params.bias[1], _accel_params.bias[2]};
 	Eigen::Vector3d bg {_gyro_params.bias[0], _gyro_params.bias[1], _gyro_params.bias[2]};
-	double bb = _baro_params.bias[0;
+	double bb = _baro_params.bias[0];
 
 	Eigen::VectorXd x_init(nx);
 	x_init << Eigen::VectorXd::Zero(10), ba, bg, bb;
