@@ -25,7 +25,7 @@ gyro_data = data(:, 5:7);
 %% MEKF instance initialization
 profile on;
 
-model = TranslationRotationModel(Ts);
+model = TranslationRotationModelV2(Ts);
 mekf = MEKF(model);
 
 %% Simulation loop
