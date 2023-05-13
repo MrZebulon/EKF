@@ -11,39 +11,39 @@ using namespace std;
 using namespace shai::models;
 using namespace Eigen;
 
-Eigen::VectorXd TranslationRotationModelV2::get_init_state() {
-	Eigen::Vector3d ba {_accel_params.bias[0], _accel_params.bias[1], _accel_params.bias[2]};
-	Eigen::Vector3d bg {_gyro_params.bias[0], _gyro_params.bias[1], _gyro_params.bias[2]};
+VectorXd TranslationRotationModelV2::get_init_state() {
+	Vector3d ba {_accel_params.bias[0], _accel_params.bias[1], _accel_params.bias[2]};
+	Vector3d bg {_gyro_params.bias[0], _gyro_params.bias[1], _gyro_params.bias[2]};
 	double bb = _baro_params.bias[0];
 
-	Eigen::VectorXd x_init(nx);
-	x_init << Eigen::VectorXd::Zero(10), ba, bg, bb;
+	VectorXd x_init(nx);
+	x_init << VectorXd::Zero(10), ba, bg, bb;
 
 	return x_init;
 }
 
-Eigen::MatrixXd TranslationRotationModelV2::get_init_cov() {
-	Eigen::MatrixXd P_init(nx, nx);
-	P_init.diagonal() << Eigen::VectorXd::Constant(nx, 1e-9);
+MatrixXd TranslationRotationModelV2::get_init_cov() {
+	MatrixXd P_init(nx, nx);
+	P_init.diagonal() << VectorXd::Constant(nx, 1e-9);
 	return P_init;
 }
 
 void TranslationRotationModelV2::compute_x_new(const VectorXd &x, const VectorXd &u, VectorXd& out) {
 
-	Eigen::Vector3d pos = {x(0), x(1), x(2)};
-	Eigen::Vector3d vel = {x(3), x(4), x(5)};
-	Eigen::Quaternion<double> q = {x(6), x(7), x(8), x(9)};
-	Eigen::Vector3d ba {x(10), x(11), x(12)};
-	Eigen::Vector3d bg{x(13), x(14), x(15)};
+	Vector3d pos = {x(0), x(1), x(2)};
+	Vector3d vel = {x(3), x(4), x(5)};
+	Quaternion<double> q = {x(6), x(7), x(8), x(9)};
+	Vector3d ba {x(10), x(11), x(12)};
+	Vector3d bg{x(13), x(14), x(15)};
 	double bb = x(16);
 
-	Eigen::Vector3d a = {u(0), u(1), u(2)};
-	Eigen::Vector3d w = {u(3), u(4), u(5)};
+	Vector3d a = {u(0), u(1), u(2)};
+	Vector3d w = {u(3), u(4), u(5)};
 
-	Eigen::Vector3d delta_v{};
+	Vector3d delta_v{};
 
 	body_to_inertial({q.w(), q.x(), q.y(), q.z()}, {_dt*a(0) - ba(0), _dt*a(1) - ba(1), _dt*a(2) - ba(2)}, delta_v);
-	Eigen::Quaternion<double> delta_q = {1, 0.5*(_dt*w(0) - bg(0)), 0.5*(_dt*w(1) - bg(1)), 0.5*(_dt*w(2) - bg(2))};
+	Quaternion<double> delta_q = {1, 0.5*(_dt*w(0) - bg(0)), 0.5*(_dt*w(1) - bg(1)), 0.5*(_dt*w(2) - bg(2))};
 
 	q *= delta_q;
 
@@ -51,12 +51,12 @@ void TranslationRotationModelV2::compute_x_new(const VectorXd &x, const VectorXd
 }
 
 void TranslationRotationModelV2::get_F_matrix(const VectorXd &x, const VectorXd &u, MatrixXd& out) {
-	Eigen::Quaternion<double> q = {x(6), x(7), x(8), x(9)};
-	Eigen::Vector3d ba {x(10), x(11), x(12)};
-	Eigen::Vector3d bg {x(13), x(14), x(15)};
+	Quaternion<double> q = {x(6), x(7), x(8), x(9)};
+	Vector3d ba {x(10), x(11), x(12)};
+	Vector3d bg {x(13), x(14), x(15)};
 
-	Eigen::Vector3d a = {u(0) * _dt, u(1) * _dt, u(2) * _dt};
-	Eigen::Vector3d w = {u(3) * _dt, u(4) * _dt, u(5) * _dt};
+	Vector3d a = {u(0) * _dt, u(1) * _dt, u(2) * _dt};
+	Vector3d w = {u(3) * _dt, u(4) * _dt, u(5) * _dt};
 
 	// dp^dot
 	out(0, 3) = _dt;
@@ -76,16 +76,16 @@ void TranslationRotationModelV2::get_F_matrix(const VectorXd &x, const VectorXd 
 }
 
 void TranslationRotationModelV2::get_Q_matrix(const VectorXd &x, const VectorXd &u, const VectorXd &w, MatrixXd& out) {
-	Eigen::Quaternion<double> q = {x(6), x(7), x(8), x(9)};
-	Eigen::Vector3d dv{w(0), w(1), w(2)};
-	Eigen::Vector3d da{w(3), w(4), w(5)};
+	Quaternion<double> q = {x(6), x(7), x(8), x(9)};
+	Vector3d dv{w(0), w(1), w(2)};
+	Vector3d da{w(3), w(4), w(5)};
 
-	Eigen::MatrixXd W = MatrixXd::Zero(nw + 1, nw + 1);
+	MatrixXd W = MatrixXd::Zero(nw + 1, nw + 1);
 	W.diagonal() << dv, 0, da;
 
-	Eigen::MatrixXd G = MatrixXd::Zero(nx, nw + 1);
+	MatrixXd G = MatrixXd::Zero(nx, nw + 1);
 
-	Eigen::MatrixXd temp = MatrixXd::Zero(3, 3);
+	MatrixXd temp = MatrixXd::Zero(3, 3);
 	rotation_matrix(q, temp);
 	G.block<3, 3>(3, 0) = temp;
 

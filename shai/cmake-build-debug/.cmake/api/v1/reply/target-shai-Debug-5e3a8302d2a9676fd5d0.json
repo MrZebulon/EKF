@@ -123,7 +123,8 @@
 				4,
 				5,
 				6,
-				7
+				7,
+				8
 			]
 		}
 	],
@@ -169,6 +170,11 @@
 		{
 			"backtrace" : 1,
 			"path" : "includes/TranslationRotationModelV2.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "includes/BaseDataCollector.hpp",
 			"sourceGroupIndex" : 1
 		}
 	],

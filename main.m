@@ -26,15 +26,15 @@ gyro_data = data(:, 5:7);
 profile on;
 
 model = TranslationRotationModelV2(Ts);
-mekf = MEKF(model);
+ekf = EKFEngine(model);
 
 %% Simulation loop
-system_states = zeros(n, mekf.state_size()); % used for graphing data
+system_states = zeros(n, ekf.state_size()); % used for graphing data
 
 for i = 1:n
-    mekf = mekf.predict_step(get_u(i, acc_data, gyro_data));
-    mekf = mekf.update_step(get_z(i, baro_data));
-    system_states(i, :) = mekf.x';
+    ekf = ekf.predict_step(get_u(i, acc_data, gyro_data));
+    ekf = ekf.update_step(get_z(i, baro_data));
+    system_states(i, :) = ekf.x';
 end
 
 profile viewer;

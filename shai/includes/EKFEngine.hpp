@@ -2,14 +2,14 @@
 // Created by Samuel on 02/05/2023.
 //
 
-#ifndef SHAI_MEKF_HPP
-#define SHAI_MEKF_HPP
+#ifndef SHAI_EKFENGINE_HPP
+#define SHAI_EKFENGINE_HPP
 
 #include "BaseModel.hpp"
 
 namespace shai{
 
-	struct MEKFParameters {
+	struct EKFEngineParameters {
 		Eigen::VectorXd x;
 		Eigen::MatrixXd P;
 
@@ -29,11 +29,11 @@ namespace shai{
 	};
 
 	template<class Model = models::BaseModel>
-	class MEKF {
+	class EKFEngine {
 	private:
 
 	public:
-		explicit MEKF(const Model& model) : _model(model) {}
+		explicit EKFEngine(const Model& model) : _model(model) {}
 
 		void init(){
 			_params.x = _model.init_state();
@@ -48,7 +48,7 @@ namespace shai{
 
 	private:
 		Model _model;
-		MEKFParameters _params;
+		EKFEngineParameters _params;
 	protected:
 		void predict(const Eigen::VectorXd& u) {
 			_model.get_F_matrix(_params.x, u, _params.F);
@@ -88,10 +88,10 @@ namespace shai{
 			_params.K.setZero();
 		}
 
-		const MEKFParameters& get_params() const {
+		const EKFEngineParameters& get_params() const {
 			return _params;
 		}
 	};
 };
 
-#endif //SHAI_MEKF_HPP
+#endif //SHAI_EKFENGINE_HPP

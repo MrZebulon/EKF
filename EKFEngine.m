@@ -1,4 +1,4 @@
-classdef MEKF
+classdef EKFEngine
     properties
         % x: state vector
         % P: covariance martix
@@ -8,7 +8,7 @@ classdef MEKF
     end
 
     methods
-        function obj = MEKF(model)
+        function obj = EKFEngine(model)
             [x_init, P_init] = model.get_init_state();
             obj.x = x_init;
             obj.P = P_init;

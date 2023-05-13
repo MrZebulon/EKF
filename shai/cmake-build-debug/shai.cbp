@@ -86,6 +86,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/BaseDataCollector.hpp">
+			<Option target="shai"/>
+		</Unit>
 		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/BaseModel.hpp">
 			<Option target="shai"/>
 		</Unit>
