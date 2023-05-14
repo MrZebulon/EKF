@@ -1,1 +1,1 @@
-/usr/bin/c++ -g CMakeFiles/shai.dir/src/main.cpp.o CMakeFiles/shai.dir/src/TranslationRotationModel.cpp.o -o shai 
+/usr/bin/c++ -g CMakeFiles/shai.dir/src/data/SimulationDataIO.cpp.o CMakeFiles/shai.dir/src/main.cpp.o CMakeFiles/shai.dir/src/models/TranslationRotationModel.cpp.o -o shai 

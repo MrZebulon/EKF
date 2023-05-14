@@ -117,10 +117,9 @@ classdef TranslationRotationModelV2 < BaseModel
             F(1:3, 4:6) = eye(3) * obj.dt;
             
             %dv^dot
-            F(4, :) = [0, 0, 0, 0, 0, 0, 2*q0*(a_x  - b_acc_x) - 2*q3*(a_y  - b_acc_y) + 2*q2*(a_z  - b_acc_z), 2*q1*(a_x  - b_acc_x) + 2*q2*(a_y  - b_acc_y) + 2*q3*(a_z  - b_acc_z), 2*q1*(a_y  - b_acc_y) - 2*q2*(a_x  - b_acc_x) + 2*q0*(a_z  - b_acc_z), 2*q1*(a_z  - b_acc_z) - 2*q0*(a_y  - b_acc_y) - 2*q3*(a_x  - b_acc_x), 0, 0, 0, - q0^2 - q1^2 + q2^2 + q3^2, 2*q0*q3 - 2*q1*q2, - 2*q0*q2 - 2*q1*q3, 0];
-            F(5, :) = [0, 0, 0, 0, 0, 0, 2*q3*(a_x  - b_acc_x) + 2*q0*(a_y  - b_acc_y) - 2*q1*(a_z  - b_acc_z), 2*q2*(a_x  - b_acc_x) - 2*q1*(a_y  - b_acc_y) - 2*q0*(a_z  - b_acc_z), 2*q1*(a_x  - b_acc_x) + 2*q2*(a_y  - b_acc_y) + 2*q3*(a_z  - b_acc_z), 2*q0*(a_x  - b_acc_x) - 2*q3*(a_y  - b_acc_y) + 2*q2*(a_z  - b_acc_z), 0, 0, 0, - 2*q0*q3 - 2*q1*q2, - q0^2 + q1^2 - q2^2 + q3^2, 2*q0*q1 - 2*q2*q3,  0];
-            F(6, :) = [0, 0, 0, 0, 0, 0, 2*q1*(a_y  - b_acc_y) - 2*q2*(a_x  - b_acc_x) + 2*q0*(a_z  - b_acc_z), 2*q3*(a_x  - b_acc_x) + 2*q0*(a_y  - b_acc_y) - 2*q1*(a_z  - b_acc_z), 2*q3*(a_y  - b_acc_y) - 2*q0*(a_x  - b_acc_x) - 2*q2*(a_z  - b_acc_z), 2*q1*(a_x  - b_acc_x) + 2*q2*(a_y  - b_acc_y) + 2*q3*(a_z  - b_acc_z), 0, 0, 0,   2*q0*q2 - 2*q1*q3, - 2*q0*q1 - 2*q2*q3, - q0^2 + q1^2 + q2^2 - q3^2, 0];
-            
+            F(4:6, 7:10) = Utils.acc_rotmat_jac([q0 q1 q2 q3], [a_x - b_acc_x, a_y-b_acc_y, a_z - b_acc_z]);
+            F(4:6, 11:13) = -Utils.rotmat([q0 q1 q2 q3]);
+
             %dq^dot
             F(7, :) = [0, 0, 0, 0, 0, 0, 0, b_gyro_x/2 - w_x/2, b_gyro_y/2 - w_y/2, b_gyro_z/2 - w_z/2, 0, 0, 0, q1/2, q2/2, q3/2, 0];
             F(8, :) = [0, 0, 0, 0, 0, 0, w_x/2 - b_gyro_x/2, 0, w_z/2 - b_gyro_z/2, b_gyro_y/2 - w_y/2, 0, 0, 0, -q0/2, q3/2, -q2/2, 0];

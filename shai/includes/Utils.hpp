@@ -5,27 +5,37 @@
 #ifndef SHAI_UTILS_HPP
 #define SHAI_UTILS_HPP
 
-#include "eigen3/Eigen/Eigen"
+#include <eigen3/Eigen/Eigen>
 
-void body_to_inertial(const Eigen::Vector4d& q, const Eigen::Vector3d& vect_b, Eigen::Vector3d& out){
-	Eigen::Matrix3d rot_mat;
-	
-	rot_mat <<  q(0)*q(0)+q.w()*q.w()-q.x()*q.x()-q.y()*q.y(), 2*(q.w()*q.x()-q(0)*q.y()), 2*(q.w()*q.y()+q(0)*q.x()),
-				2*(q.w()*q.x()+q(0)*q.y()), q(0)*q(0)-q.w()*q.w()+q.x()*q.x()-q.y()*q.y(), 2*(q.x()*q.y()-q(0)*q.w()),
-				2*(q.w()*q.y()-q(0)*q.x()), 2*(q.x()*q.y()+q(0)*q.w()), q(0)*q(0)-q.w()*q.w()-q.x()*q.x()+q.y()*q.y();
-
-	out = rot_mat * vect_b;
+inline void body_to_inertial(const Eigen::Vector4d& q, const Eigen::Vector3d& vect_b, Eigen::Vector3d& out){
+	Eigen::Quaterniond quat(q(0), q(1), q(2), q(3));
+	quat.normalize();
+	Eigen::Matrix3d rot_matrix = quat.toRotationMatrix();
+	out << rot_matrix * vect_b;
 }
 
-void mult_quat(const Eigen::Vector4d& q.x(), const Eigen::Vector4d& q.y(), Eigen::Vector4d& out) {
-	out <<  q.x()(0)*q.y()(0) - q.x()(1)*q.y()(1) - q.x()(2)*q.y()(2) - q.x()(3)*q.y()(3),
-			q.x()(0)*q.y()(1) + q.y()(0)*q.x()(1) + q.x()(2)*q.y()(3) - q.y()(2)*q.x()(3),
-			q.x()(0)*q.y()(2) + q.y()(0)*q.x()(2) - q.x()(1)*q.y()(3) + q.y()(1)*q.x()(3),
-			q.x()(0)*q.y()(3) + q.y()(0)*q.x()(3) + q.x()(1)*q.y()(2) - q.y()(1)*q.x()(2);
+inline void rotmat(const Eigen::Vector4d& q, Eigen::Matrix3d& out) {
+	double q0 = q(0);
+	double q1 = q(1);
+	double q2 = q(2);
+	double q3 = q(3);
+
+	out << q0*q0+q1*q1-q2*q2-q3*q3, 2*(q1*q2-q0*q3), 2*(q1*q3+q0*q2),
+			2*(q1*q2+q0*q3), q0*q0-q1*q1+q2*q2-q3*q3, 2*(q2*q3-q0*q1),
+			2*(q1*q3-q0*q2), 2*(q2*q3+q0*q1), q0*q0-q1*q1-q2*q2+q3*q3;
+}
+
+inline void mult_quat(const Eigen::Vector4d& q1, const Eigen::Vector4d& q2, Eigen::Vector4d& out){
+	double qnew_0 = q1(0) * q2(0) - q1(1) * q2(1) - q1(2) * q2(2) - q1(3) * q2(3);
+	double qnew_1 = q1(0) * q2(1) + q2(0) * q1(1) + q1(2) * q2(3) - q2(2) * q1(3);
+	double qnew_2 = q1(0) * q2(2) + q2(0) * q1(2) - q1(1) * q2(3) + q2(1) * q1(3);
+	double qnew_3 = q1(0) * q2(3) + q2(0) * q1(3) + q1(1) * q2(2) - q2(1) * q1(2);
+
+	out << qnew_0, qnew_1, qnew_2, qnew_3;
 }
 
 template<std::size_t e>
-double fuse_data_on_u(const Eigen::Vector<double, e>& data_sources, const Eigen::Vector<double, e>& noises) {
+inline double fuse_data_on_u(const Eigen::Vector<double, e>& data_sources, const Eigen::Vector<double, e>& noises) {
 	double out = 0;
 	double tot_noise = 0;
 
@@ -37,18 +47,11 @@ double fuse_data_on_u(const Eigen::Vector<double, e>& data_sources, const Eigen:
 	return out/tot_noise;
 }
 
-void hamilton_product_as_matrix(const Eigen::Quaternion<double>& q, Eigen::MatrixXd& out){
+inline void hamilton_product_as_matrix(const Eigen::Quaternion<double>& q, Eigen::MatrixXd& out){
 	out <<  q.w(), -q.x(), -q.y(), -q.z(),
 			q.x(), q.w(), -q.z(), q.y(),
 			q.y(), q.z(), q.w(), -q.x(),
 			q.z(), -q.y(), q.x(), q.w();
-}
-
-void rotation_matrix(const Eigen::Quaternion<double>& q, Eigen::MatrixXd& out){
-
-	out <<  q.w()*q.w()+q.x()*q.x()-q.y()*q.y()-q.z()*q.z(), 2*(q.x()*q.y()-q.w()*q.z()), 2*(q.x()*q.z()+q.w()*q.y()),
-			2*(q.x()*q.y()+q.w()*q.z()), q.w()*q.w()-q.x()*q.x()+q.y()*q.y()-q.z()*q.z(), 2*(q.y()*q.z()-q.w()*q.x()),
-			2*(q.x()*q.z()-q.w()*q.y()), 2*(q.y()*q.z()+q.w()*q.x()), q.w()*q.w()-q.x()*q.x()-q.y()*q.y()+q.z()*q.z();
 }
 
 #endif //SHAI_UTILS_HPP

@@ -129,29 +129,29 @@ shai/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/build
 .PHONY : shai/fast
 
-src/TranslationRotationModel.o: src/TranslationRotationModel.cpp.o
-.PHONY : src/TranslationRotationModel.o
+src/data/SimulationDataIO.o: src/data/SimulationDataIO.cpp.o
+.PHONY : src/data/SimulationDataIO.o
 
 # target to build an object file
-src/TranslationRotationModel.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/src/TranslationRotationModel.cpp.o
-.PHONY : src/TranslationRotationModel.cpp.o
+src/data/SimulationDataIO.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/src/data/SimulationDataIO.cpp.o
+.PHONY : src/data/SimulationDataIO.cpp.o
 
-src/TranslationRotationModel.i: src/TranslationRotationModel.cpp.i
-.PHONY : src/TranslationRotationModel.i
+src/data/SimulationDataIO.i: src/data/SimulationDataIO.cpp.i
+.PHONY : src/data/SimulationDataIO.i
 
 # target to preprocess a source file
-src/TranslationRotationModel.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/src/TranslationRotationModel.cpp.i
-.PHONY : src/TranslationRotationModel.cpp.i
+src/data/SimulationDataIO.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/src/data/SimulationDataIO.cpp.i
+.PHONY : src/data/SimulationDataIO.cpp.i
 
-src/TranslationRotationModel.s: src/TranslationRotationModel.cpp.s
-.PHONY : src/TranslationRotationModel.s
+src/data/SimulationDataIO.s: src/data/SimulationDataIO.cpp.s
+.PHONY : src/data/SimulationDataIO.s
 
 # target to generate assembly for a file
-src/TranslationRotationModel.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/src/TranslationRotationModel.cpp.s
-.PHONY : src/TranslationRotationModel.cpp.s
+src/data/SimulationDataIO.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/src/data/SimulationDataIO.cpp.s
+.PHONY : src/data/SimulationDataIO.cpp.s
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -177,6 +177,30 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/models/TranslationRotationModel.o: src/models/TranslationRotationModel.cpp.o
+.PHONY : src/models/TranslationRotationModel.o
+
+# target to build an object file
+src/models/TranslationRotationModel.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/src/models/TranslationRotationModel.cpp.o
+.PHONY : src/models/TranslationRotationModel.cpp.o
+
+src/models/TranslationRotationModel.i: src/models/TranslationRotationModel.cpp.i
+.PHONY : src/models/TranslationRotationModel.i
+
+# target to preprocess a source file
+src/models/TranslationRotationModel.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/src/models/TranslationRotationModel.cpp.i
+.PHONY : src/models/TranslationRotationModel.cpp.i
+
+src/models/TranslationRotationModel.s: src/models/TranslationRotationModel.cpp.s
+.PHONY : src/models/TranslationRotationModel.s
+
+# target to generate assembly for a file
+src/models/TranslationRotationModel.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/shai.dir/build.make CMakeFiles/shai.dir/src/models/TranslationRotationModel.cpp.s
+.PHONY : src/models/TranslationRotationModel.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -186,12 +210,15 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... shai"
-	@echo "... src/TranslationRotationModel.o"
-	@echo "... src/TranslationRotationModel.i"
-	@echo "... src/TranslationRotationModel.s"
+	@echo "... src/data/SimulationDataIO.o"
+	@echo "... src/data/SimulationDataIO.i"
+	@echo "... src/data/SimulationDataIO.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/models/TranslationRotationModel.o"
+	@echo "... src/models/TranslationRotationModel.i"
+	@echo "... src/models/TranslationRotationModel.s"
 .PHONY : help
 
 

@@ -86,31 +86,37 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/BaseDataCollector.hpp">
-			<Option target="shai"/>
-		</Unit>
-		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/BaseModel.hpp">
-			<Option target="shai"/>
-		</Unit>
-		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/MEKF.hpp">
-			<Option target="shai"/>
-		</Unit>
-		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/SensorParameters.hpp">
-			<Option target="shai"/>
-		</Unit>
-		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/TranslationRotationModel.hpp">
-			<Option target="shai"/>
-		</Unit>
-		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/TranslationRotationModelV2.hpp">
+		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/EKFEngine.hpp">
 			<Option target="shai"/>
 		</Unit>
 		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/Utils.hpp">
 			<Option target="shai"/>
 		</Unit>
-		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/src/TranslationRotationModel.cpp">
+		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/data/SimulationDataIO.hpp">
+			<Option target="shai"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/models/BaseModel.hpp">
+			<Option target="shai"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/models/SensorParameters.hpp">
+			<Option target="shai"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/models/TranslationRotationModel.hpp">
+			<Option target="shai"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes/models/TranslationRotationModelV2.hpp">
+			<Option target="shai"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/src/data/SimulationDataIO.cpp">
 			<Option target="shai"/>
 		</Unit>
 		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/src/main.cpp">
+			<Option target="shai"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/src/models/TranslationRotationModel.cpp">
+			<Option target="shai"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/src/models/TranslationRotationModelV2.cpp">
 			<Option target="shai"/>
 		</Unit>
 		<Unit filename="/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/CMakeLists.txt">

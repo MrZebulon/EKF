@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I"/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes" -I"/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/eigen3"
+CXX_INCLUDES = -I"/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/includes" -I"/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/SYSTEM" -I"/mnt/c/Users/Samuel/Programming/RocketTeam/GNC/EKF Sam/shai/eigen3"
 
 CXX_FLAGS = -g -std=gnu++23
 
