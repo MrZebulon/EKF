@@ -4,5 +4,5 @@ project(shai)
 set(CMAKE_CXX_STANDARD 23)
 
 file(GLOB_RECURSE SOURCES "src/*.cpp" "includes/*.hpp")
-add_executable(shai ${SOURCES} src/models/TranslationRotationModel.cpp)
+add_executable(shai ${SOURCES})
 target_include_directories(shai PRIVATE includes SYSTEM eigen3)

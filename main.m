@@ -39,6 +39,8 @@ end
 
 profile viewer;
 writematrix(system_states, "./data/static_out.csv");
+writematrix(system_states, "../Data/static/run.csv");
+
 
 %% Data handling functions
 function z = get_z(i, baro_data)

@@ -74,9 +74,9 @@
 			},
 			"sourceIndexes" : 
 			[
+				5,
 				6,
-				7,
-				8
+				7
 			]
 		}
 	],
@@ -113,17 +113,16 @@
 				1,
 				2,
 				3,
-				4,
-				5
+				4
 			]
 		},
 		{
 			"name" : "Source Files",
 			"sourceIndexes" : 
 			[
+				5,
 				6,
-				7,
-				8
+				7
 			]
 		}
 	],
@@ -132,11 +131,6 @@
 		{
 			"backtrace" : 1,
 			"path" : "includes/EKFEngine.hpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"path" : "includes/Utils.hpp",
 			"sourceGroupIndex" : 0
 		},
 		{
