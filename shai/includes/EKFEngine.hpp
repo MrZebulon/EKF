@@ -5,18 +5,21 @@
 #ifndef SHAI_EKFENGINE_HPP
 #define SHAI_EKFENGINE_HPP
 
+#include <eigen3/Eigen/Dense>
 #include "models/BaseModel.hpp"
+#include "data/EigenDebugger.hpp"
 
 using namespace shai::models;
 
 namespace shai {
 	class EKFEngine {
 	public:
-		explicit EKFEngine(BaseModel* model) : model(model) {}
+		explicit EKFEngine(BaseModel* model) : model(model), debugger("../../data/debug_shai.txt") {}
 	private:
 		BaseModel* model;
 		VectorXd x;
 		MatrixXd P;
+		EigenDebugger debugger;
 
 	public:
 		inline void init(){
@@ -27,14 +30,15 @@ namespace shai {
 		inline void predict(const VectorXd& u) {
 			MatrixXd F = model->get_F_matrix(x, u);
 			MatrixXd A = MatrixXd::Identity(F.rows(), F.cols()) + F;
-
 			VectorXd w = model->get_noise_vect();
 			MatrixXd Qs = model->get_Qs_matrix();
+
 			MatrixXd Q = model->get_Q_matrix(x, u, w);
 
 			x = model->compute_x_new(x, u);
-			P = A * P * A.transpose() + Q + Qs;
-			P = 0.5 * (P + P.transpose());
+
+			MatrixXd P_new = A * P * A.transpose() + Q + Qs;
+			P = 0.5 * (P_new + P_new.transpose());
 		}
 
 		inline void update(const VectorXd& z) {

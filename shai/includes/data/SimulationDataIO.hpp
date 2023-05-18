@@ -13,11 +13,11 @@
 class SimulationDataIO {
 private:
 	std::ifstream file_in;
-	std::stringstream _in_stream;
+	std::istringstream _in_stream;
 	std::string _in_str;
 
 	std::ofstream file_out;
-	std::stringstream _out_stream;
+	std::ostringstream _out_stream;
 public:
 	explicit SimulationDataIO(const char* in_path, const char* out_path){
 		file_in = std::ifstream(in_path);

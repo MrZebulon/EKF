@@ -4,5 +4,5 @@ project(shai)
 set(CMAKE_CXX_STANDARD 23)
 
 file(GLOB_RECURSE SOURCES "src/*.cpp" "includes/*.hpp")
-add_executable(shai ${SOURCES})
+add_executable(shai ${SOURCES} includes/data/EigenDebugger.hpp)
 target_include_directories(shai PRIVATE includes SYSTEM eigen3)

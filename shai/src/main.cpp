@@ -18,5 +18,4 @@ int main() {
 		engine.update(data_point.segment<1>(0));
 		io.write_next(engine.get_x());
 	}
-
 }

@@ -26,7 +26,6 @@ classdef EKFEngine
             P_new = A*obj.P*(A') + Q + Qs;
             
             obj.x = obj.model.compute_x_new(obj.x, u);
-            obj.P = 0.5*(P_new+P_new');
             % P has to be symmetric. We could use P + P' instead
             % (as it will always be symmetric). Since Pij = Pji
             % correspond to a covariance, we divide by two (so as to not

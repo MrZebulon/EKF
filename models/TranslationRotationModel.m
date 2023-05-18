@@ -21,7 +21,7 @@ classdef TranslationRotationModel < BaseModel
     %   14 : barometer bias noise
 
     properties (Constant)
-        additive_noise = 1e-6;
+        additive_noise = 1e-8;
         
         % Time has been taken into account within the biases/noises/drifts
         % units = m/s
@@ -30,16 +30,14 @@ classdef TranslationRotationModel < BaseModel
         accel_drift = 3.314312818032142e-10;
 
         %units = rad/s
-        gyro_bias = [0.0038284331173227743, -0.001784190927555866, -0.0028707138021085243];
-        gyro_noise = 2.5617707075843632e-08;
-        gyro_drift = 0;
+        gyro_bias = [0.0038284331173227743, -0.001784190927555866, -0.002920534852288187];
+        gyro_noise = 1.0102261028815603e-08;
+        gyro_drift = 3.9979150848914756e-10;
 
         % units = m
         baro_bias = 399.23657624056926;
-        baro_noise = 0.0007454259701653068;
-        baro_drift = 2.8486463440220755e-06;
-
-        baro_measurement_uncertainty = 0.1;
+        baro_noise = 0.014769875002697693;
+        baro_drift = 6.282361435771973e-05;
     end
 
     methods
@@ -74,7 +72,8 @@ classdef TranslationRotationModel < BaseModel
         function x_new = compute_x_new(obj, x, u)
             dt = obj.dt;
             delta_acc = Utils.body_to_inertial_frame(x(7:10)', (dt*u(1:3)' - x(11:13)));
-            delta_q = quaternion([1,  (dt * u(4:6) - x(14:16)') / 2]);
+            delta_q = quaternion([1, (dt * u(4:6) - x(14:16)')/ 2]);
+
             dx = [
                 x(4) * dt
                 x(5) * dt
@@ -178,7 +177,7 @@ classdef TranslationRotationModel < BaseModel
         end
 
         function R = get_R_matrix(obj)
-            R = obj.baro_measurement_uncertainty;
+            R = obj.baro_noise;
         end
     end
 end

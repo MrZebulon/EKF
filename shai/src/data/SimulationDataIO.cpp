@@ -3,22 +3,19 @@
 //
 
 #include <iostream>
-#include <cmath>
 #include "data/SimulationDataIO.hpp"
 
 bool SimulationDataIO::read_next(Eigen::VectorXd &out) {
-	double v = 0.;
 
 	if(!std::getline(file_in, _in_str))
 		return false;
 
 	_in_stream.str(_in_str);
 
+	std::string s;
 	int i = 0;
-	while (std::getline(_in_stream, _in_str, ',')) {
-		_in_stream >> v;
-		out(i++) = v;
-	}
+	while (getline(_in_stream, s, ','))
+		out(i++) = std::atof(s.c_str());;
 
 	return true;
 }
