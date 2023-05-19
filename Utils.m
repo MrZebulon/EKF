@@ -14,11 +14,16 @@ classdef Utils
         end
 
         function qmat = hamilton_product_as_matrix(q)
+            q0 = q(1);
+            q1 = q(2);
+            q2 = q(3);
+            q3 = q(4);
+
             qmat = [...
-                q(1), -q(2), -q(3), -q(4)
-                q(2),  q(1), -q(4), q(3)
-                q(3), q(4), q(1), -q(2)
-                q(4), -q(3), q(2), q(1)];
+                q0,  q1,  q2,  q3
+                -q1,  q0,  q3, -q2
+                -q2, -q3,  q0,  q1
+                -q3,  q2, -q1,  q0];
         end
 
         function data = fuse_data(data_sources, noises)
@@ -35,26 +40,9 @@ classdef Utils
             q3 = q(4);
 
             rot_mat = [...
-                q0*q0+q1*q1-q2*q2-q3*q3, 2*(q1*q2-q0*q3), 2*(q1*q3+q0*q2)
-                2*(q1*q2+q0*q3), q0*q0-q1*q1+q2*q2-q3*q3, 2*(q2*q3-q0*q1)
-                2*(q1*q3-q0*q2), 2*(q2*q3+q0*q1), q0*q0-q1*q1-q2*q2+q3*q3];
-        end 
-
-        function qa = acc_rotmat_jac(q, a)
-            q0 = q(1);
-            q1 = q(2);
-            q2 = q(3);
-            q3 = q(4);
-
-            ax = a(1);
-            ay = a(2);
-            az = a(3);
-
-            qa = [...
-                2*ax*q0 - 2*ay*q3 + 2*az*q2, 2*ax*q1 + 2*ay*q2 + 2*az*q3, 2*ay*q1 - 2*ax*q2 + 2*az*q0, 2*az*q1 - 2*ay*q0 - 2*ax*q3
-                2*ax*q3 + 2*ay*q0 - 2*az*q1, 2*ax*q2 - 2*ay*q1 - 2*az*q0, 2*ax*q1 + 2*ay*q2 + 2*az*q3, 2*ax*q0 - 2*ay*q3 + 2*az*q2
-                2*ay*q1 - 2*ax*q2 + 2*az*q0, 2*ax*q3 + 2*ay*q0 - 2*az*q1, 2*ay*q3 - 2*ax*q0 - 2*az*q2, 2*ax*q1 + 2*ay*q2 + 2*az*q3];
- 
+                q0^2 + q1^2 - q2^2 - q3^2,         2*q1*q2 - 2*q0*q3,         2*q0*q2 + 2*q1*q3
+                2*q0*q3 + 2*q1*q2, q0^2 - q1^2 + q2^2 - q3^2,         2*q2*q3 - 2*q0*q1
+                2*q1*q3 - 2*q0*q2,         2*q0*q1 + 2*q2*q3, q0^2 - q1^2 - q2^2 + q3^2];
         end
 
     end

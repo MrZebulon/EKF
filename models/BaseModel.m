@@ -58,6 +58,10 @@ classdef BaseModel < handle
             % change over time (i.e. R(k) would depend on R(k-1)).
             R = 0;
         end
+
+        function x = callback(obj, engine)
+            x = engine.x;
+        end
     end
 
 end
