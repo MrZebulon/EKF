@@ -13,10 +13,10 @@ namespace shai::models {
 	class TranslationRotationModel : public virtual BaseModel {
 	private:
 		SensorParameters<3> accel = {{0.0029394893123127377, -0.0009818539510592773, 0.0028762637247315066}, 4.7358607479753485e-09, 3.314312818032142e-10};
-		SensorParameters<3> gyro = {{0.0038284331173227743, -0.001784190927555866, -0.0028707138021085243}, 2.5617707075843632e-08, 0};
-		SensorParameters<1> baro = {Array<double, 1, 1>(399.23657624056926), 0.0007454259701653068, 2.8486463440220755e-06};
+		SensorParameters<3> gyro = {{0.0038284331173227743, -0.001784190927555866, -0.002920534852288187}, 1.0102261028815603e-08, 3.9979150848914756e-10};
+		SensorParameters<1> baro = {Array<double, 1, 1>(399.23657624056926), 0.014769875002697693, 6.282361435771973e-05};
 	public:
-		explicit TranslationRotationModel(double dt) : BaseModel(dt) {}
+		explicit TranslationRotationModel() : BaseModel(1./100) {}
 
 		VectorXd get_init_state() override;
 		MatrixXd get_init_cov() override;

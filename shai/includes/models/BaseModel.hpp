@@ -13,7 +13,7 @@ namespace shai::models {
 
 	class BaseModel{
 	protected:
-		double additive_noise = 1e-6;
+		double additive_noise = 1e-8;
 		double _dt;
 
 		explicit BaseModel(double dt) : _dt(dt) {}

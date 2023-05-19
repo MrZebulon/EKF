@@ -17,23 +17,16 @@ classdef SimplifiedModel < BaseModel
     properties (Constant)
         additive_noise = 1e-8;
         
-        % Time has NOT been taken into account within the biases/noises/drifts
-        %
-        % THIS IS LEGACY BEHAVIOR !
-        % FOR THE LOVE OF WHICHEVER GOD(S) YOU BELIVE IN, DO NOT USE THIS AS A
-        % REFERENCE !
-
+        % Time has been taken into account within the biases/noises/drifts
         % units = m/s
-        accel_bias = [-0.026842656242568 0.033420780321046 -0.007947030636161];
-        accel_noise = 1;
-        accel_bias_noise = 2e-4;
+        accel_bias = [0.0029394893123127377, -0.0009818539510592773, 0.0028762637247315066];
+        accel_noise = 4.7358607479753485e-09;
+        accel_drift = 3.314312818032142e-10;
 
         % units = m
-        baro_bias = 361.3487972164834;
-        baro_noise = 0.0011529662809109404;
-        baro_bias_noise = 2.8486463440220755e-06;
-
-        baro_measurement_uncertainty = 0.1;
+        baro_bias = 399.23657624056926;
+        baro_noise = 0.014769875002697693;
+        baro_drift = 6.282361435771973e-05;
     end
 
     methods
@@ -83,9 +76,9 @@ classdef SimplifiedModel < BaseModel
                 0, 0, 0,    obj.dt, 0, 0,    0, 0, 0,      0
                 0, 0, 0,    0, obj.dt, 0,    0, 0, 0,      0
                 0, 0, 0,    0, 0, obj.dt,    0, 0, 0,      0
-                0, 0, 0,    0, 0, 0,         1, 0, 0,      0
-                0, 0, 0,    0, 0, 0,         0, 1, 0,      0
-                0, 0, 0,    0, 0, 0,         0, 0, 1,      0
+                0, 0, 0,    0, 0, 0,         -1, 0, 0,      0
+                0, 0, 0,    0, 0, 0,         0, -1, 0,      0
+                0, 0, 0,    0, 0, 0,         0, 0, -1,      0
                 0, 0, 0,    0, 0, 0,         0, 0, 0,      0
                 0, 0, 0,    0, 0, 0,         0, 0, 0,      0
                 0, 0, 0,    0, 0, 0,         0, 0, 0,      0
@@ -99,16 +92,16 @@ classdef SimplifiedModel < BaseModel
             dvzCov = w(3); 
            
            Q = [...
-                0, 0, 0,    0, 0, 0,                    0, 0, 0,      0
-                0, 0, 0,    0, 0, 0,                    0, 0, 0,      0
-                0, 0, 0,    0, 0, 0,                    0, 0, 0,      0
-                0, 0, 0,    dvxCov*obj.dt^2, 0, 0,      0, 0, 0,      0
-                0, 0, 0,    0, dvyCov*obj.dt^2, 0,      0, 0, 0,      0
-                0, 0, 0,    0, 0, dvzCov*obj.dt^2,      0, 0, 0,      0
-                0, 0, 0,    0, 0, 0,                    0, 0, 0,      0
-                0, 0, 0,    0, 0, 0,                    0, 0, 0,      0
-                0, 0, 0,    0, 0, 0,                    0, 0, 0,      0
-                0, 0, 0,    0, 0, 0,                    0, 0, 0,      0];
+                0, 0, 0,    0, 0, 0,           0, 0, 0,      0
+                0, 0, 0,    0, 0, 0,           0, 0, 0,      0
+                0, 0, 0,    0, 0, 0,           0, 0, 0,      0
+                0, 0, 0,    dvxCov, 0, 0,      0, 0, 0,      0
+                0, 0, 0,    0, dvyCov, 0,      0, 0, 0,      0
+                0, 0, 0,    0, 0, dvzCov,      0, 0, 0,      0
+                0, 0, 0,    0, 0, 0,           0, 0, 0,      0
+                0, 0, 0,    0, 0, 0,           0, 0, 0,      0
+                0, 0, 0,    0, 0, 0,           0, 0, 0,      0
+                0, 0, 0,    0, 0, 0,           0, 0, 0,      0];
         end
 
         function z_hat  = get_measurement_estimate(obj, x)
@@ -124,15 +117,15 @@ classdef SimplifiedModel < BaseModel
             Fs = 1/obj.dt;
 
             scale_var = 0.5*(1./(Fs.^2));
-            vel_delta_bias_sigma = scale_var.* obj.accel_bias_noise;
-            pos_delta_bias_sigma = scale_var.* obj.baro_bias_noise;
+            vel_delta_bias_sigma = scale_var.* obj.accel_drift;
+            pos_delta_bias_sigma = scale_var.* obj.baro_drift;
 
             Qs = diag([obj.additive_noise.*ones(1,6), vel_delta_bias_sigma*ones(1,3), pos_delta_bias_sigma*ones(1,1)]);
-            w = scale_var.*[obj.accel_noise*ones(1,3), obj.baro_noise*ones(1,1)];
+            w = scale_var.*[obj.accel_noise*ones(1,3)];
         end
 
         function R = get_R_matrix(obj)
-            R = obj.baro_measurement_uncertainty;
+            R = obj.baro_noise;
         end
     end
 end

@@ -71,8 +71,8 @@ classdef TranslationRotationModel < BaseModel
 
         function x_new = compute_x_new(obj, x, u)
             dt = obj.dt;
-            delta_acc = Utils.body_to_inertial_frame(x(7:10)', (dt*u(1:3)' - x(11:13)));
-            delta_q = quaternion([1, (dt * u(4:6) - x(14:16)')/ 2]);
+            delta_acc = Utils.rotmat(x(7:10)') * (dt*u(1:3)' - x(11:13));
+            delta_q = quaternion((dt * u(4:6) - x(14:16)'), "rotvec");
 
             dx = [
                 x(4) * dt
@@ -131,9 +131,9 @@ classdef TranslationRotationModel < BaseModel
             dvxCov = w(1); 
             dvyCov = w(2);
             dvzCov = w(3); 
-            daxCov = w(4); 
-            dayCov = w(5); 
-            dazCov = w(6); 
+            daxCov = w(5); 
+            dayCov = w(6); 
+            dazCov = w(7); 
 
             q0 = x(7);
             q1 = x(8);
@@ -173,7 +173,7 @@ classdef TranslationRotationModel < BaseModel
             pos_delta_bias_sigma = scale_var.* obj.baro_drift;
 
             Qs = diag([obj.additive_noise.*ones(1,10), vel_delta_bias_sigma.*ones(1,3), ang_vel_delta_bias_sigma.*ones(1,3), pos_delta_bias_sigma.*ones(1,1)]);
-            w = scale_var.*[obj.accel_noise.*ones(1,3), obj.gyro_noise.*ones(1,3), obj.baro_noise.*ones(1,1)];
+            w = scale_var.*[obj.accel_noise.*ones(1,3), 0, obj.gyro_noise.*ones(1,3)];
         end
 
         function R = get_R_matrix(obj)

@@ -71,8 +71,8 @@ classdef TranslationRotationModelV2 < BaseModel
 
         function x_new = compute_x_new(obj, x, u)
             dt = obj.dt;
-            delta_acc = Utils.body_to_inertial_frame(x(7:10)', (dt*u(1:3)' - x(11:13)));
-            delta_q = quaternion([1, (dt * u(4:6) - x(14:16)')/ 2]);
+            delta_acc = Utils.rotmat(x(7:10)') * (dt*u(1:3)' - x(11:13));
+            delta_q = quaternion((dt * u(4:6) - x(14:16)'), "rotvec");
             dx = [
                 x(4) * dt
                 x(5) * dt
@@ -113,13 +113,14 @@ classdef TranslationRotationModelV2 < BaseModel
 
             % dp^dot
             F(1:3, 4:6) = eye(3) * obj.dt;
-            
+
             %dv^dot
-            F(4, :) = [0, 0, 0, 0, 0, 0, 2*q0*(a_x  - b_acc_x) - 2*q3*(a_y  - b_acc_y) + 2*q2*(a_z  - b_acc_z), 2*q1*(a_x  - b_acc_x) + 2*q2*(a_y  - b_acc_y) + 2*q3*(a_z  - b_acc_z), 2*q1*(a_y  - b_acc_y) - 2*q2*(a_x  - b_acc_x) + 2*q0*(a_z  - b_acc_z), 2*q1*(a_z  - b_acc_z) - 2*q0*(a_y  - b_acc_y) - 2*q3*(a_x  - b_acc_x), 0, 0, 0, - q0^2 - q1^2 + q2^2 + q3^2, 2*q0*q3 - 2*q1*q2, - 2*q0*q2 - 2*q1*q3, 0];
-            F(5, :) = [0, 0, 0, 0, 0, 0, 2*q3*(a_x  - b_acc_x) + 2*q0*(a_y  - b_acc_y) - 2*q1*(a_z  - b_acc_z), 2*q2*(a_x  - b_acc_x) - 2*q1*(a_y  - b_acc_y) - 2*q0*(a_z  - b_acc_z), 2*q1*(a_x  - b_acc_x) + 2*q2*(a_y  - b_acc_y) + 2*q3*(a_z  - b_acc_z), 2*q0*(a_x  - b_acc_x) - 2*q3*(a_y  - b_acc_y) + 2*q2*(a_z  - b_acc_z), 0, 0, 0, - 2*q0*q3 - 2*q1*q2, - q0^2 + q1^2 - q2^2 + q3^2, 2*q0*q1 - 2*q2*q3,  0];
-            F(6, :) = [0, 0, 0, 0, 0, 0, 2*q1*(a_y  - b_acc_y) - 2*q2*(a_x  - b_acc_x) + 2*q0*(a_z  - b_acc_z), 2*q3*(a_x  - b_acc_x) + 2*q0*(a_y  - b_acc_y) - 2*q1*(a_z  - b_acc_z), 2*q3*(a_y  - b_acc_y) - 2*q0*(a_x  - b_acc_x) - 2*q2*(a_z  - b_acc_z), 2*q1*(a_x  - b_acc_x) + 2*q2*(a_y  - b_acc_y) + 2*q3*(a_z  - b_acc_z), 0, 0, 0,   2*q0*q2 - 2*q1*q3, - 2*q0*q1 - 2*q2*q3, - q0^2 + q1^2 + q2^2 - q3^2, 0];
+            F(4, :) = [0, 0, 0, 0, 0, 0, 2*q0*(a_x - b_acc_x) - 2*q3*(a_y - b_acc_y) + 2*q2*(a_z - b_acc_z), 2*q1*(a_x - b_acc_x) + 2*q2*(a_y - b_acc_y) + 2*q3*(a_z - b_acc_z), 2*q1*(a_y - b_acc_y) - 2*q2*(a_x - b_acc_x) + 2*q0*(a_z - b_acc_z), 2*q1*(a_z - b_acc_z) - 2*q0*(a_y - b_acc_y) - 2*q3*(a_x - b_acc_x), 0, 0, 0, - q0^2 - q1^2 + q2^2 + q3^2, 2*q0*q3 - 2*q1*q2, - 2*q0*q2 - 2*q1*q3, 0];
+            F(5, :) = [0, 0, 0, 0, 0, 0, 2*q3*(a_x - b_acc_x) + 2*q0*(a_y - b_acc_y) - 2*q1*(a_z - b_acc_z), 2*q2*(a_x - b_acc_x) - 2*q1*(a_y - b_acc_y) - 2*q0*(a_z - b_acc_z), 2*q1*(a_x - b_acc_x) + 2*q2*(a_y - b_acc_y) + 2*q3*(a_z - b_acc_z), 2*q0*(a_x - b_acc_x) - 2*q3*(a_y - b_acc_y) + 2*q2*(a_z - b_acc_z), 0, 0, 0, - 2*q0*q3 - 2*q1*q2, - q0^2 + q1^2 - q2^2 + q3^2, 2*q0*q1 - 2*q2*q3,  0];
+            F(6, :) = [0, 0, 0, 0, 0, 0, 2*q1*(a_y - b_acc_y) - 2*q2*(a_x - b_acc_x) + 2*q0*(a_z - b_acc_z), 2*q3*(a_x - b_acc_x) + 2*q0*(a_y - b_acc_y) - 2*q1*(a_z - b_acc_z), 2*q3*(a_y - b_acc_y) - 2*q0*(a_x - b_acc_x) - 2*q2*(a_z - b_acc_z), 2*q1*(a_x - b_acc_x) + 2*q2*(a_y - b_acc_y) + 2*q3*(a_z - b_acc_z), 0, 0, 0,   2*q0*q2 - 2*q1*q3, - 2*q0*q1 - 2*q2*q3, - q0^2 + q1^2 + q2^2 - q3^2, 0];
             
             %dq^dot
+ 
             F(7, :) = [0, 0, 0, 0, 0, 0, 0, b_gyro_x/2 - w_x/2, b_gyro_y/2 - w_y/2, b_gyro_z/2 - w_z/2, 0, 0, 0, q1/2, q2/2, q3/2, 0];
             F(8, :) = [0, 0, 0, 0, 0, 0, w_x/2 - b_gyro_x/2, 0, w_z/2 - b_gyro_z/2, b_gyro_y/2 - w_y/2, 0, 0, 0, -q0/2, q3/2, -q2/2, 0];
             F(9, :) = [0, 0, 0, 0, 0, 0, w_y/2 - b_gyro_y/2, b_gyro_z/2 - w_z/2, 0, w_x/2 - b_gyro_x/2, 0, 0, 0, -q3/2, -q0/2, q1/2, 0];
@@ -131,7 +132,7 @@ classdef TranslationRotationModelV2 < BaseModel
             G(4:6, 1:3) = Utils.rotmat(x(7:10));
             G(7:10, 4:7) = 0.5.*Utils.hamilton_product_as_matrix(x(7:10));
 
-            Q = G*diag([w(1:3), 0, w(4:6)])*(G.');
+            Q = G*diag(w)*(G.');
         end
 
         function z_hat  = get_measurement_estimate(obj, x)
@@ -154,7 +155,7 @@ classdef TranslationRotationModelV2 < BaseModel
             pos_delta_bias_sigma = scale_var.* obj.baro_drift;
 
             Qs = diag([obj.additive_noise.*ones(1,10), vel_delta_bias_sigma.*ones(1,3), ang_vel_delta_bias_sigma.*ones(1,3), pos_delta_bias_sigma.*ones(1,1)]);
-            w = scale_var.*[obj.accel_noise.*ones(1,3), obj.gyro_noise.*ones(1,3), obj.baro_noise.*ones(1,1)];
+            w = scale_var.*[obj.accel_noise.*ones(1,3), 0, obj.gyro_noise.*ones(1,3)];
         end
 
         function R = get_R_matrix(obj)

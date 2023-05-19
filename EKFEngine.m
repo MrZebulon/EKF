@@ -23,9 +23,10 @@ classdef EKFEngine
             A = eye(size(F)) + F; % adding identity matrix to ensure that process noise isn't mistakenly removed
             [Qs, w] = obj.model.generate_noise();
             Q = obj.model.get_Q_matrix(obj.x, u, w);
-            P_new = A*obj.P*(A') + Q + Qs;
+            obj.P = A*obj.P*(A') + Q + Qs;
             
             obj.x = obj.model.compute_x_new(obj.x, u);
+            obj.P = 0.5 *(obj.P + (obj.P).');
             % P has to be symmetric. We could use P + P' instead
             % (as it will always be symmetric). Since Pij = Pji
             % correspond to a covariance, we divide by two (so as to not
@@ -37,7 +38,7 @@ classdef EKFEngine
             % i.e. it computes the "a posteriori" estimate
         
             H = obj.model.get_H_matrix();
-            nx = size(obj.x, 1);
+            nx = obj.state_size();
             inov = z - obj.model.get_measurement_estimate(obj.x);
             S = H*obj.P*(H') + obj.model.get_R_matrix();
             K = obj.P*(H')*inv(S);

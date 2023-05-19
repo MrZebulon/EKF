@@ -4,7 +4,6 @@
 
 #include <cmath>
 #include <eigen3/Eigen/Geometry>
-#include <iostream>
 
 #include "models/TranslationRotationModel.hpp"
 
@@ -13,6 +12,36 @@
 #define NZ 1
 
 using namespace shai::models;
+
+Matrix4d hamilton_product_as_matrix(const Vector4d& q){
+	Matrix4d mat;
+	mat <<  q(0), -q(1), -q(2), -q(3),
+			q(1),  q(0), -q(3), q(2),
+			q(2), q(3), q(0), -q(1),
+			q(3), -q(2), q(1), q(0);
+
+	return mat;
+}
+
+Matrix3d rotmat(const Vector4d& q){
+	Matrix3d mat;
+
+	double q0 = q(0), q1 = q(1), q2 = q(2), q3 = q(3);
+
+	mat <<  q0*q0+q1*q1-q2*q2-q3*q3, 2*(q1*q2-q0*q3), 2*(q1*q3+q0*q2),
+			2*(q1*q2+q0*q3), q0*q0-q1*q1+q2*q2-q3*q3, 2*(q2*q3-q0*q1),
+			2*(q1*q3-q0*q2), 2*(q2*q3+q0*q1), q0*q0-q1*q1-q2*q2+q3*q3;
+	return mat;
+}
+
+Vector4d multquat(const Vector4d& q1, const Vector4d& q2){
+	Vector4d q_new;
+	q_new(0) = q1(0)*q2(0)    -q1(1)*q2(1)    -q1(2)*q2(2)    -q1(3)*q2(3);
+	q_new(0) = q1(0)*q2(1)    +q2(0)*q1(1)    +q1(2)*q2(3)    -q2(2)*q1(3);
+	q_new(0) = q1(0)*q2(2)    +q2(0)*q1(2)    -q1(1)*q2(3)    +q2(1)*q1(3);
+	q_new(0) = q1(0)*q2(3)    +q2(0)*q1(3)    +q1(1)*q2(2)    -q2(1)*q1(2);
+	return q_new;
+}
 
 VectorXd TranslationRotationModel::get_init_state() {
 	VectorXd x_init = VectorXd::Zero(NX);
@@ -26,11 +55,8 @@ MatrixXd TranslationRotationModel::get_init_cov() {
 }
 
 VectorXd TranslationRotationModel::compute_x_new(const VectorXd &x, const VectorXd &u) {
-	Quaterniond q{x.segment<4>(6)};
-	Vector3d delta_acc = q.toRotationMatrix() * (_dt * u.segment<3>(0) - x.segment<3>(10));
-
+	Vector3d delta_acc = rotmat(x.segment<4>(6)) * (_dt * u.segment<3>(0) - x.segment<3>(10));
 	Vector3d axis = (_dt * u.segment<3>(3) - x.segment<3>(13)) / 2.;
-	Quaterniond delta_q(1, axis(0), axis(1), axis(2));
 
 	VectorXd dx(x.size());
 	dx << x(3) * _dt,
@@ -52,10 +78,11 @@ VectorXd TranslationRotationModel::compute_x_new(const VectorXd &x, const Vector
 			0;
 
 	VectorXd x_new = x + dx;
-	q = q * delta_q;
+	Vector4d delta_q{1, axis(0), axis(1), axis(2)};
+	Vector4d q = multquat(x.segment<4>(6), delta_q);
 	q.normalize();
 
-	x_new.segment<4>(6) << q.x(), q.y(), q.z(), q.w();
+	x_new.segment<4>(6) = q;
 
 	return x_new;
 }
@@ -91,14 +118,10 @@ MatrixXd TranslationRotationModel::get_Q_matrix(const VectorXd &x, const VectorX
 	double dvxCov = w(0), dvyCov = w(1), dvzCov = w(2);
 	double daxCov = w(3), dayCov = w(4), dazCov = w(5);
 
-	Q.row(3) << 0, 0, 0, dvyCov * std::pow(2*q0*q3 - 2*q1*q2, 2) + dvzCov * std::pow(2*q0*q2 + 2*q1*q3, 2) + dvxCov * std::pow(q0*q0 + q1*q1 - q2*q2 - q3*q3, 2), dvxCov * (2*q0*q3 + 2*q1*q2) * (q0*q0 + q1*q1 - q2*q2 - q3*q3) - dvyCov * (2*q0*q3 - 2*q1*q2) * (q0*q0 - q1*q1 + q2*q2 - q3*q3) - dvzCov * (2*q0*q1 - 2*q2*q3) * (2*q0*q2 + 2*q1*q3), dvzCov * (2*q0*q2 + 2*q1*q3) * (q0*q0 - q1*q1 - q2*q2 + q3*q3) - dvxCov * (2*q0*q2 - 2*q1*q3) * (q0*q0 + q1*q1 - q2*q2 - q3*q3) - dvyCov * (2*q0*q1 + 2*q2*q3) * (2*q0*q3 - 2*q1*q2), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-	Q.row(4) << 0, 0, 0, dvxCov * (2*q0*q3 + 2*q1*q2) * (q0*q0 + q1*q1 - q2*q2 - q3*q3) - dvyCov * (2*q0*q3 - 2*q1*q2) * (q0*q0 - q1*q1 + q2*q2 - q3*q3) - dvzCov * (2*q0*q1 - 2*q2*q3) * (2*q0*q2 + 2*q1*q3), dvxCov * std::pow(2*q0*q3 + 2*q1*q2, 2) + dvzCov * std::pow(2*q0*q1 - 2*q2*q3, 2) + dvyCov * std::pow(q0*q0 - q1*q1 + q2*q2 - q3*q3, 2), dvyCov * (2*q0*q1 + 2*q2*q3) * (q0*q0 - q1*q1 + q2*q2 - q3*q3) - dvzCov * (2*q0*q1 - 2*q2*q3) * (q0*q0 - q1*q1 - q2*q2 + q3*q3) - dvxCov * (2*q0*q2 - 2*q1*q3) * (2*q0*q3 + 2*q1*q2), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-	Q.row(5) << 0, 0, 0, dvzCov * (2*q0*q2 + 2*q1*q3) * (q0*q0 - q1*q1 - q2*q2 + q3*q3) - dvxCov * (2*q0*q2 - 2*q1*q3) * (q0*q0 + q1*q1 - q2*q2 - q3*q3) - dvyCov * (2*q0*q1 + 2*q2*q3) * (2*q0*q3 - 2*q1*q2), dvyCov * (2*q0*q1 + 2*q2*q3) * (q0*q0 - q1*q1 + q2*q2 - q3*q3) - dvzCov * (2*q0*q1 - 2*q2*q3) * (q0*q0 - q1*q1 - q2*q2 + q3*q3) - dvxCov * (2*q0*q2 - 2*q1*q3) * (2*q0*q3 + 2*q1*q2), dvxCov * std::pow(2*q0*q2 - 2*q1*q3, 2) + dvyCov * std::pow(2*q0*q1 + 2*q2*q3, 2) + dvzCov * std::pow(q0*q0 - q1*q1 - q2*q2 + q3*q3, 2), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-
-	Q.row(6) << 0, 0, 0, 0, 0, 0, (daxCov * q1*q1) / 4 + (dayCov * q2*q2) / 4 + (dazCov * q3*q3) / 4, (dayCov * q2*q3) / 4 - (daxCov * q0*q1) / 4 - (dazCov * q2*q3) / 4, (dazCov * q1*q3) / 4 - (dayCov * q0*q2) / 4 - (daxCov * q1*q3) / 4, (daxCov * q1*q2) / 4 - (dayCov * q1*q2) / 4 - (dazCov * q0*q3) / 4, 0, 0, 0, 0, 0, 0, 0;
-	Q.row(7) << 0, 0, 0, 0, 0, 0, (dayCov * q2*q3) / 4 - (daxCov * q0*q1) / 4 - (dazCov * q2*q3) / 4, (daxCov * q0*q0) / 4 + (dazCov * q2*q2) / 4 + (dayCov * q3*q3) / 4, (daxCov * q0*q3) / 4 - (dayCov * q0*q3) / 4 - (dazCov * q1*q2) / 4, (dazCov * q0*q2) / 4 - (dayCov * q1*q3) / 4 - (daxCov * q0*q2) / 4, 0, 0, 0, 0, 0, 0, 0;
-	Q.row(8) << 0, 0, 0, 0, 0, 0, (dazCov * q1*q3) / 4 - (dayCov * q0*q2) / 4 - (daxCov * q1*q3) / 4, (daxCov * q0*q3) / 4 - (dayCov * q0*q3) / 4 - (dazCov * q1*q2) / 4, (dayCov * q0*q0) / 4 + (dazCov * q1*q1) / 4 + (daxCov * q3*q3) / 4, (dayCov * q0*q1) / 4 - (daxCov * q2*q3) / 4 - (dazCov * q0*q1) / 4, 0, 0, 0, 0, 0, 0, 0;
-	Q.row(9) << 0, 0, 0, 0, 0, 0, (daxCov * q1*q2) / 4 - (dayCov * q1*q2) / 4 - (dazCov * q0*q3) / 4, (dazCov * q0*q2) / 4 - (dayCov * q1*q3) / 4 - (daxCov * q0*q2) / 4, (dayCov * q0*q1) / 4 - (daxCov * q2*q3) / 4 - (dazCov * q0*q1) / 4, (dazCov * q0*q0) / 4 + (dayCov * q1*q1) / 4 + (daxCov * q2*q2) / 4, 0, 0, 0, 0, 0, 0, 0;
+	MatrixXd G = MatrixXd::Zero(NX, NW);
+	G.block<3, 3>(3, 0) = rotmat({q0, q1, q2, q3});
+	G.block<4, 4>(6, 3) = 0.5*hamilton_product_as_matrix(x.segment<4>(6));
+	Q = G * Vector<double, NW>{dvxCov, dvyCov, dvzCov, 0, daxCov, dayCov, dazCov}.asDiagonal() * G.transpose();
 
 	return Q;
 }
@@ -111,13 +134,13 @@ VectorXd TranslationRotationModel::get_measurement_estimate(const VectorXd &x) {
 
 MatrixXd TranslationRotationModel::get_H_matrix() {
 	MatrixXd H = MatrixXd::Zero(NZ, NX);
-	H(0, 2) = 1;
+	H << 0, 0, 1,  0, 0, 0,  0, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0;
 	return H;
 }
 
 MatrixXd TranslationRotationModel::get_R_matrix() {
 	MatrixXd R = MatrixXd::Zero(NZ, NZ);
-	R << 0.1;
+	R << baro.noise;
 	return R;
 }
 
@@ -126,9 +149,7 @@ VectorXd TranslationRotationModel::get_noise_vect() {
 	double Fs = 1./_dt;
 	double s =  0.5 * (1. / (Fs * Fs));
 
-	w.segment<3>(0) << Vector3d::Constant(s * accel.noise);
-	w.segment<3>(3) << Vector3d::Constant(s * gyro.noise);
-	w.segment<1>(6) << s * baro.noise;
+	w << Vector3d::Constant(s * accel.noise), Vector3d::Constant(s * gyro.noise), s * baro.noise;
 	return w;
 }
 
@@ -136,12 +157,8 @@ MatrixXd TranslationRotationModel::get_Qs_matrix() {
 	double Fs = 1./_dt;
 	double scale_var = 0.5 *(1./ (Fs * Fs));
 
-	Vector3d vel_delta_bias_sigma;
-	vel_delta_bias_sigma << Vector3d::Constant(scale_var * accel.drift);
-
-	Vector3d ang_vel_delta_bias_sigma;
-	ang_vel_delta_bias_sigma << Vector3d::Constant(scale_var * gyro.drift);
-
+	Vector3d vel_delta_bias_sigma = Vector3d::Constant(scale_var * accel.drift);
+	Vector3d ang_vel_delta_bias_sigma = Vector3d::Constant(scale_var * gyro.drift);
 	double pos_delta_bias_sigma = scale_var * baro.drift;
 
 	Eigen::Vector<double, NX> Qs;

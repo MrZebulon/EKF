@@ -6,6 +6,7 @@
 #define SHAI_EKFENGINE_HPP
 
 #include <eigen3/Eigen/Dense>
+#include <iostream>
 #include "models/BaseModel.hpp"
 #include "data/EigenDebugger.hpp"
 
@@ -36,16 +37,15 @@ namespace shai {
 			MatrixXd Q = model->get_Q_matrix(x, u, w);
 
 			x = model->compute_x_new(x, u);
-
-			MatrixXd P_new = A * P * A.transpose() + Q + Qs;
-			P = 0.5 * (P_new + P_new.transpose());
+			P = A * P * A.transpose() + Q + Qs;
+			debugger.dump_matrix("P (@prior)", P);
 		}
 
 		inline void update(const VectorXd& z) {
 			MatrixXd H = model->get_H_matrix();
 			MatrixXd S = H * P * H.transpose() + model->get_R_matrix();
 			MatrixXd K = P * H.transpose() * S.inverse();
-			x += K*(z - model->get_measurement_estimate(x));
+			x = x + K*(z - model->get_measurement_estimate(x));
 			P = (MatrixXd::Identity(P.rows(), P.cols()) - K*H)*P;
 		}
 
