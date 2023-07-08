@@ -6,20 +6,27 @@ classdef TranslationRotationModelV2 < BaseModel
     %   7-10 : orientation
     %   11-13 : accel bias
     %   14-16 : gyro bias
-    %   17 : baro bias
+    %   17-19: magneto_bias
+    %   20-22 : earth permanent field in inertial frame
     %
     % Control vector definition
     %   1-3 : acceleration
     %   4-6 : angular velocity
-
+    %
     % Noise vector definition
-    %   1-3 : acceleration noise
-    %   4-6 : gyro noise
-    %   7 : barometer noise
-    %   8-10 : acceleration bias noise
-    %   11-13 : gyro bias noise
-    %   14 : barometer bias noise
+    %   1-3 : accel noise
+    %   4-7 : 0, gyro noise
+    %
+    % Obs vector definition
+    %   1 : baro
+    %   2-4 : magneto
 
+    properties (Constant)
+        Nx = 22;
+        Nu = 6;
+        Nw = 7;
+        Nz = 4;
+    end
     properties (Constant)
         additive_noise = 1e-6;
 
@@ -37,7 +44,14 @@ classdef TranslationRotationModelV2 < BaseModel
         % units = m
         baro_bias = 399.23657624056926;
         baro_noise = 0.014769875002697693;
-        baro_drift = 6.282361435771973e-05;
+
+        % units = uT
+        magneto_bias = [100, 100, 100];
+        magneto_noise = 0.09;
+        magneto_drift =  1e-10;
+        magneto_earth_field = [19.5281 -5.0741 48.0067];
+        magneto_earth_field_drift =  1e-15;
+
     end
 
     methods
@@ -62,9 +76,17 @@ classdef TranslationRotationModelV2 < BaseModel
 
                 obj.gyro_bias(1)
                 obj.gyro_bias(2)
-                obj.gyro_bias(3)];
+                obj.gyro_bias(3)
 
-            P_init = diag(1e-9 * ones(1, 16));
+                obj.magneto_earth_field(1)
+                obj.magneto_earth_field(2)
+                obj.magneto_earth_field(3)
+
+                obj.magneto_bias(1)
+                obj.magneto_bias(2)
+                obj.magneto_bias(3)];
+
+            P_init = diag(1e-9 * ones(1, 22));
         end
 
         function x_new = compute_x_new(obj, x, u)
@@ -90,18 +112,26 @@ classdef TranslationRotationModelV2 < BaseModel
 
                 0
                 0
+                0
+
+                0
+                0
+                0
+
+                0
+                0
                 0];
 
             x_new = x + dx;
 
             % delta_q = quaternion((dt * u(4:6) - x(14:16)'), "rotvec");
             %x_new(7:10) = compact(normalize(quaternion(x(7:10)') * delta_q));
-            delta_q = [1; (dt .* u(4:6)'-x(14:16))/2];
+            delta_q = [1.0; (dt.*u(4:6)'-x(14:16))/2];
             x_new(7:10) = Utils.mult_quat(x(7:10),delta_q);
         end
 
         function F = get_F_matrix(obj, x, u)
-            F = zeros(16, 16);
+            F = zeros(obj.Nx, obj.Nx);
 
             q0 = x(7); q1 = x(8); q2 = x(9); q3 = x(10);
 
@@ -114,114 +144,80 @@ classdef TranslationRotationModelV2 < BaseModel
 
             F(1:3, 4:6) = obj.dt.*eye(3);
 
-            F(4, :) = [0, 0, 0, 0, 0, 0, 2*q0*(dvx - dvx_b) - 2*q3*(dvy - dvy_b) + 2*q2*(dvz - dvz_b), 2*q1*(dvx - dvx_b) + 2*q2*(dvy - dvy_b) + 2*q3*(dvz - dvz_b), 2*q1*(dvy - dvy_b) - 2*q2*(dvx - dvx_b) + 2*q0*(dvz - dvz_b), 2*q1*(dvz - dvz_b) - 2*q0*(dvy - dvy_b) - 2*q3*(dvx - dvx_b), 0, 0, 0, - q0^2 - q1^2 + q2^2 + q3^2, 2*q0*q3 - 2*q1*q2, - 2*q0*q2 - 2*q1*q3];
-            F(5, :) = [0, 0, 0, 0, 0, 0, 2*q3*(dvx - dvx_b) + 2*q0*(dvy - dvy_b) - 2*q1*(dvz - dvz_b), 2*q2*(dvx - dvx_b) - 2*q1*(dvy - dvy_b) - 2*q0*(dvz - dvz_b), 2*q1*(dvx - dvx_b) + 2*q2*(dvy - dvy_b) + 2*q3*(dvz - dvz_b), 2*q0*(dvx - dvx_b) - 2*q3*(dvy - dvy_b) + 2*q2*(dvz - dvz_b), 0, 0, 0,  - 2*q0*q3 - 2*q1*q2, - q0^2 + q1^2 - q2^2 + q3^2, 2*q0*q1 - 2*q2*q3];
-            F(6, :) = [0, 0, 0, 0, 0, 0, 2*q1*(dvy - dvy_b) - 2*q2*(dvx - dvx_b) + 2*q0*(dvz - dvz_b), 2*q3*(dvx - dvx_b) + 2*q0*(dvy - dvy_b) - 2*q1*(dvz - dvz_b), 2*q3*(dvy - dvy_b) - 2*q0*(dvx - dvx_b) - 2*q2*(dvz - dvz_b), 2*q1*(dvx - dvx_b) + 2*q2*(dvy - dvy_b) + 2*q3*(dvz - dvz_b), 0, 0, 0, 2*q0*q2 - 2*q1*q3,  - 2*q0*q1 - 2*q2*q3, - q0^2 + q1^2 + q2^2 - q3^2];
+            F(4, 7:10) = [2*q0*(dvx - dvx_b) - 2*q3*(dvy - dvy_b) + 2*q2*(dvz - dvz_b), 2*q1*(dvx - dvx_b) + 2*q2*(dvy - dvy_b) + 2*q3*(dvz - dvz_b), 2*q1*(dvy - dvy_b) - 2*q2*(dvx - dvx_b) + 2*q0*(dvz - dvz_b), 2*q1*(dvz - dvz_b) - 2*q0*(dvy - dvy_b) - 2*q3*(dvx - dvx_b)];
+            F(4, 14:16) = [- q0^2 - q1^2 + q2^2 + q3^2, 2*q0*q3 - 2*q1*q2, - 2*q0*q2 - 2*q1*q3];
+            F(5, 7:10) = [2*q3*(dvx - dvx_b) + 2*q0*(dvy - dvy_b) - 2*q1*(dvz - dvz_b), 2*q2*(dvx - dvx_b) - 2*q1*(dvy - dvy_b) - 2*q0*(dvz - dvz_b), 2*q1*(dvx - dvx_b) + 2*q2*(dvy - dvy_b) + 2*q3*(dvz - dvz_b), 2*q0*(dvx - dvx_b) - 2*q3*(dvy - dvy_b) + 2*q2*(dvz - dvz_b)];
+            F(5, 14:16) = [- 2*q0*q3 - 2*q1*q2, - q0^2 + q1^2 - q2^2 + q3^2, 2*q0*q1 - 2*q2*q3];
+            F(6, 7:10) = [2*q1*(dvy - dvy_b) - 2*q2*(dvx - dvx_b) + 2*q0*(dvz - dvz_b), 2*q3*(dvx - dvx_b) + 2*q0*(dvy - dvy_b) - 2*q1*(dvz - dvz_b), 2*q3*(dvy - dvy_b) - 2*q0*(dvx - dvx_b) - 2*q2*(dvz - dvz_b), 2*q1*(dvx - dvx_b) + 2*q2*(dvy - dvy_b) + 2*q3*(dvz - dvz_b)];
+            F(6, 14:16) = [2*q0*q2 - 2*q1*q3,  - 2*q0*q1 - 2*q2*q3, - q0^2 + q1^2 + q2^2 - q3^2];
 
-            F(7, :) = [0, 0, 0, 0, 0, 0, 0,  dax_b/2 - dax/2,  day_b/2 - day/2,  daz_b/2 - daz/2, 0, 0, 0,  q1/2,  q2/2,  q3/2];
-            F(8, :) = [0, 0, 0, 0, 0, 0, dax/2 - dax_b/2, 0,  daz/2 - daz_b/2,  day_b/2 - day/2, 0, 0, 0, -q0/2,  q3/2, -q2/2];
-            F(9, :) = [0, 0, 0, 0, 0, 0, day/2 - day_b/2,  daz_b/2 - daz/2, 0,  dax/2 - dax_b/2, 0, 0, 0, -q3/2, -q0/2,  q1/2];
-            F(10, :) = [0, 0, 0, 0, 0, 0, daz/2 - daz_b/2,  day/2 - day_b/2,  dax_b/2 - dax/2, 0, 0, 0, 0,  q2/2, -q1/2, -q0/2];
+            F(7, 7:10) = [0,  dax_b/2 - dax/2,  day_b/2 - day/2,  daz_b/2 - daz/2];
+            F(7, 14:16) = [q1/2,  q2/2,  q3/2];
+            F(8, 7:10) = [dax/2 - dax_b/2, 0,  daz/2 - daz_b/2,  day_b/2 - day/2];
+            F(8, 14:16) = [-q0/2,  q3/2, -q2/2];
+            F(9, 7:10) = [day/2 - day_b/2,  daz_b/2 - daz/2, 0,  dax/2 - dax_b/2];
+            F(9, 14:16) = [-q3/2, -q0/2,  q1/2];
+            F(10, 7:10) = [daz/2 - daz_b/2,  day/2 - day_b/2,  dax_b/2 - dax/2, 0];
+            F(10, 7:10) = [q2/2, -q1/2, -q0/2];
         end
 
         function Q = get_Q_matrix(obj, x, u, w)
 
             q0 = x(7); q1 = x(8); q2 = x(9); q3 = x(10);
-            G = zeros(16, 7);
+            G = zeros(obj.Nx, obj.Nw);
 
             G(4:6, 1:3) = quat2rotm([q0, q1, q2, q3]);
             G(7:10, 4:7) = 0.5 .*Utils.hamilton_product_as_matrix([q0, q1, q2, q3]);
-            Q = G*diag([w(1:3), 0, w(4:6)])*(G.');
+            Q = G*diag([w(1:3), w(4:7)])*(G.');
 
         end
-        
-        %{
-        function F = get_F_matrixAJD(obj, x, u)
-
-            F = zeros(16, 16);
-
-            q0 = x(7); q1 = x(8); q2 = x(9); q3 = x(10);
-            a_x = u(1) * obj.dt; a_y = u(2) * obj.dt; a_z = u(3) * obj.dt;
-            w_x = u(4) * obj.dt; w_y = u(5) * obj.dt; w_z = u(6) * obj.dt;
-            b_acc_x = x(11); b_acc_y = x(12); b_acc_z = x(13);
-            b_gyro_x = x(14); b_gyro_y = x(15); b_gyro_z = x(16);
-
-            % dp^dot
-            F(1:3, 4:6) = eye(3) * obj.dt;
-
-            %dv^dot
-            F(4, :) = [0, 0, 0, 0, 0, 0, 2*q0*(a_x  - b_acc_x) - 2*q3*(a_y  - b_acc_y) + 2*q2*(a_z  - b_acc_z), 2*q1*(a_x  - b_acc_x) + 2*q2*(a_y  - b_acc_y) + 2*q3*(a_z  - b_acc_z), 2*q1*(a_y  - b_acc_y) - 2*q2*(a_x  - b_acc_x) + 2*q0*(a_z  - b_acc_z), 2*q1*(a_z  - b_acc_z) - 2*q0*(a_y  - b_acc_y) - 2*q3*(a_x  - b_acc_x), 0, 0, 0, - q0^2 - q1^2 + q2^2 + q3^2, 2*q0*q3 - 2*q1*q2, - 2*q0*q2 - 2*q1*q3];
-            F(5, :) = [0, 0, 0, 0, 0, 0, 2*q3*(a_x  - b_acc_x) + 2*q0*(a_y  - b_acc_y) - 2*q1*(a_z  - b_acc_z), 2*q2*(a_x  - b_acc_x) - 2*q1*(a_y  - b_acc_y) - 2*q0*(a_z  - b_acc_z), 2*q1*(a_x  - b_acc_x) + 2*q2*(a_y  - b_acc_y) + 2*q3*(a_z  - b_acc_z), 2*q0*(a_x  - b_acc_x) - 2*q3*(a_y  - b_acc_y) + 2*q2*(a_z  - b_acc_z), 0, 0, 0, - 2*q0*q3 - 2*q1*q2, - q0^2 + q1^2 - q2^2 + q3^2, 2*q0*q1 - 2*q2*q3];
-            F(6, :) = [0, 0, 0, 0, 0, 0, 2*q1*(a_y  - b_acc_y) - 2*q2*(a_x  - b_acc_x) + 2*q0*(a_z  - b_acc_z), 2*q3*(a_x  - b_acc_x) + 2*q0*(a_y  - b_acc_y) - 2*q1*(a_z  - b_acc_z), 2*q3*(a_y  - b_acc_y) - 2*q0*(a_x  - b_acc_x) - 2*q2*(a_z  - b_acc_z), 2*q1*(a_x  - b_acc_x) + 2*q2*(a_y  - b_acc_y) + 2*q3*(a_z  - b_acc_z), 0, 0, 0,   2*q0*q2 - 2*q1*q3, - 2*q0*q1 - 2*q2*q3, - q0^2 + q1^2 + q2^2 - q3^2];
-
-            %dq^dot
-            F(7, :) = [0, 0, 0, 0, 0, 0, 0, b_gyro_x/2 - w_x/2, b_gyro_y/2 - w_y/2, b_gyro_z/2 - w_z/2, 0, 0, 0, q1/2, q2/2, q3/2];
-            F(8, :) = [0, 0, 0, 0, 0, 0, w_x/2 - b_gyro_x/2, 0, w_z/2 - b_gyro_z/2, b_gyro_y/2 - w_y/2, 0, 0, 0, -q0/2, q3/2, -q2/2];
-            F(9, :) = [0, 0, 0, 0, 0, 0, w_y/2 - b_gyro_y/2, b_gyro_z/2 - w_z/2, 0, w_x/2 - b_gyro_x/2, 0, 0, 0, -q3/2, -q0/2, q1/2];
-            F(10, :) = [0, 0, 0, 0, 0, 0, w_z/2 - b_gyro_z/2, w_y/2 - b_gyro_y/2, b_gyro_x/2 - w_x/2, 0, 0, 0, 0, q2/2, -q1/2, -q0/2];
-        end
-       
-        function Q = get_Q_matrix(obj, x, u, w)
-            Q = zeros(16, 16);
-
-            dvxCov = w(1);
-            dvyCov = w(2);
-            dvzCov = w(3);
-
-            daxCov = w(4);
-            dayCov = w(5);
-            dazCov = w(6);
-
-
-            q0 = x(7);
-            q1 = x(8);
-            q2 = x(9);
-            q3 = x(10);
-
-            Q(7:10, 7:10) = [...
-                (daxCov*q1^2)/4 + (dayCov*q2^2)/4 + (dazCov*q3^2)/4, (dayCov*q2*q3)/4 - (daxCov*q0*q1)/4 - (dazCov*q2*q3)/4, (dazCov*q1*q3)/4 - (dayCov*q0*q2)/4 - (daxCov*q1*q3)/4, (daxCov*q1*q2)/4 - (dayCov*q1*q2)/4 - (dazCov*q0*q3)/4
-                (dayCov*q2*q3)/4 - (daxCov*q0*q1)/4 - (dazCov*q2*q3)/4,    (daxCov*q0^2)/4 + (dazCov*q2^2)/4 + (dayCov*q3^2)/4, (daxCov*q0*q3)/4 - (dayCov*q0*q3)/4 - (dazCov*q1*q2)/4, (dazCov*q0*q2)/4 - (dayCov*q1*q3)/4 - (daxCov*q0*q2)/4
-                (dazCov*q1*q3)/4 - (dayCov*q0*q2)/4 - (daxCov*q1*q3)/4, (daxCov*q0*q3)/4 - (dayCov*q0*q3)/4 - (dazCov*q1*q2)/4,    (dayCov*q0^2)/4 + (dazCov*q1^2)/4 + (daxCov*q3^2)/4, (dayCov*q0*q1)/4 - (daxCov*q2*q3)/4 - (dazCov*q0*q1)/4
-                (daxCov*q1*q2)/4 - (dayCov*q1*q2)/4 - (dazCov*q0*q3)/4, (dazCov*q0*q2)/4 - (dayCov*q1*q3)/4 - (daxCov*q0*q2)/4, (dayCov*q0*q1)/4 - (daxCov*q2*q3)/4 - (dazCov*q0*q1)/4,    (dazCov*q0^2)/4 + (dayCov*q1^2)/4 + (daxCov*q2^2)/4];
-
-            Q(4:6, 4:6) = [...
-                dvyCov*(2*q0*q3 - 2*q1*q2)^2 + dvzCov*(2*q0*q2 + 2*q1*q3)^2 + dvxCov*(q0^2 + q1^2 - q2^2 - q3^2)^2, dvxCov*(2*q0*q3 + 2*q1*q2)*(q0^2 + q1^2 - q2^2 - q3^2) - dvyCov*(2*q0*q3 - 2*q1*q2)*(q0^2 - q1^2 + q2^2 - q3^2) - dvzCov*(2*q0*q1 - 2*q2*q3)*(2*q0*q2 + 2*q1*q3), dvzCov*(2*q0*q2 + 2*q1*q3)*(q0^2 - q1^2 - q2^2 + q3^2) - dvxCov*(2*q0*q2 - 2*q1*q3)*(q0^2 + q1^2 - q2^2 - q3^2) - dvyCov*(2*q0*q1 + 2*q2*q3)*(2*q0*q3 - 2*q1*q2)
-                dvxCov*(2*q0*q3 + 2*q1*q2)*(q0^2 + q1^2 - q2^2 - q3^2) - dvyCov*(2*q0*q3 - 2*q1*q2)*(q0^2 - q1^2 + q2^2 - q3^2) - dvzCov*(2*q0*q1 - 2*q2*q3)*(2*q0*q2 + 2*q1*q3), dvxCov*(2*q0*q3 + 2*q1*q2)^2 + dvzCov*(2*q0*q1 - 2*q2*q3)^2 + dvyCov*(q0^2 - q1^2 + q2^2 - q3^2)^2, dvyCov*(2*q0*q1 + 2*q2*q3)*(q0^2 - q1^2 + q2^2 - q3^2) - dvzCov*(2*q0*q1 - 2*q2*q3)*(q0^2 - q1^2 - q2^2 + q3^2) - dvxCov*(2*q0*q2 - 2*q1*q3)*(2*q0*q3 + 2*q1*q2)
-                dvzCov*(2*q0*q2 + 2*q1*q3)*(q0^2 - q1^2 - q2^2 + q3^2) - dvxCov*(2*q0*q2 - 2*q1*q3)*(q0^2 + q1^2 - q2^2 - q3^2) - dvyCov*(2*q0*q1 + 2*q2*q3)*(2*q0*q3 - 2*q1*q2), dvyCov*(2*q0*q1 + 2*q2*q3)*(q0^2 - q1^2 + q2^2 - q3^2) - dvzCov*(2*q0*q1 - 2*q2*q3)*(q0^2 - q1^2 - q2^2 + q3^2) - dvxCov*(2*q0*q2 - 2*q1*q3)*(2*q0*q3 + 2*q1*q2), dvxCov*(2*q0*q2 - 2*q1*q3)^2 + dvyCov*(2*q0*q1 + 2*q2*q3)^2 + dvzCov*(q0^2 - q1^2 - q2^2 + q3^2)^2];
-        end
-        %}
 
         function z_hat  = get_measurement_estimate(obj, x)
-            % If using multiple sensors here, h just gets more columns
-            z_hat = [x(3) + obj.baro_bias];
+
+            q0 = x(7); q1 = x(8); q2 = x(9); q3 = x(10);
+            magNavX = obj.x(17); magNavY = obj.x(18); magNavZ = obj.x(19);
+            magBiasX = obj.x(20); magBiasY = obj.x(21); magBiasZ = obj.x(22);
+
+            mx = magBiasX + magNavX*(q0^2 + q1^2 - q2^2 - q3^2) - magNavZ*(2*q0*q2 - 2*q1*q3) + magNavY*(2*q0*q3 + 2*q1*q2);
+            my = magBiasY + magNavY*(q0^2 - q1^2 + q2^2 - q3^2) + magNavZ*(2*q0*q1 + 2*q2*q3) - magNavX*(2*q0*q3 - 2*q1*q2);
+            mz = magBiasZ + magNavZ*(q0^2 - q1^2 - q2^2 + q3^2) - magNavY*(2*q0*q1 - 2*q2*q3) + magNavX*(2*q0*q2 + 2*q1*q3);
+
+            z_hat = [x(3) + obj.baro_bias, mx, my, mz];
         end
 
         function H = get_H_matrix(obj)
             % If using multiple sensors here, H just gets more rows
-            H = [...
-                0, 0, 1,    0, 0, 0,    0, 0, 0, 0,    0, 0, 0    0, 0, 0];
+            H = Zeros(obj.Nz, obj.Nx);
+
+            q0 = x(7); q1 = x(8); q2 = x(9); q3 = x(10);
+            magNavX = obj.x(17); magNavY = obj.x(18); magNavZ = obj.x(19);
+
+            H(1, 3) = 1.0;
+
+            H(2, 7:10) = [2*magNavY*q3 - 2*magNavZ*q2 + 2*magNavX*q0, 2*magNavZ*q3 + 2*magNavY*q2 + 2*magNavX*q1, 2*magNavY*q1 - 2*magNavZ*q0 - 2*magNavX*q2, 2*magNavZ*q1 + 2*magNavY*q0 - 2*magNavX*q3];
+            H(2, 17:19) = [q0^2 + q1^2 - q2^2 - q3^2, 2*q0*q3 + 2*q1*q2, 2*q1*q3 - 2*q0*q2];
+            H(3, 7:10) = [2*magNavZ*q1 + 2*magNavY*q0 - 2*magNavX*q3, 2*magNavZ*q0 - 2*magNavY*q1 + 2*magNavX*q2, 2*magNavZ*q3 + 2*magNavY*q2 + 2*magNavX*q1, 2*magNavZ*q2 - 2*magNavY*q3 - 2*magNavX*q0];
+            H(3, 17:19) = [2*q1*q2 - 2*q0*q3, q0^2 - q1^2 + q2^2 - q3^2, 2*q0*q1 + 2*q2*q3];
+            H(4, 7:10) = [2*magNavZ*q0 - 2*magNavY*q1 + 2*magNavX*q2, 2*magNavX*q3 - 2*magNavY*q0 - 2*magNavZ*q1, 2*magNavY*q3 - 2*magNavZ*q2 + 2*magNavX*q0, 2*magNavZ*q3 + 2*magNavY*q2 + 2*magNavX*q1];
+            H(4, 17:19) = [2*q0*q2 + 2*q1*q3, 2*q2*q3 - 2*q0*q1, q0^2 - q1^2 - q2^2 + q3^2];
+            H(2:4, 20:22) = eye(3);
         end
 
         function [Qs, w] = generate_noise(obj)
             Fs = 1/obj.dt;
 
             scale_var = 0.5*(1./(Fs.^2));
-            vel_delta_bias_sigma = scale_var.* obj.accel_drift;
-            ang_vel_delta_bias_sigma = scale_var.* obj.gyro_drift;
+            accel_drift_sigma = scale_var.* obj.accel_drift;
+            gyro_drift_sigma = scale_var.* obj.gyro_drift;
 
-            Qs = diag([obj.additive_noise.*ones(1,10), vel_delta_bias_sigma.*ones(1,3), ang_vel_delta_bias_sigma.*ones(1,3)]);
+            Qs = diag([obj.additive_noise.*ones(1,10), accel_drift_sigma.*ones(1,3), gyro_drift_sigma.*ones(1,3), obj.magneto_earth_field_drift.*ones(1,3), obj.magneto_drift.*ones(1,3)]);
 
-            w = scale_var.*[obj.accel_noise.*ones(1,3), obj.gyro_noise.*ones(1,3)];
+            w = scale_var.*[obj.accel_noise.*ones(1,3), 0, obj.gyro_noise.*ones(1,3)];
         end
 
         function R = get_R_matrix(obj)
-            R = 0.1; %obj.baro_noise;
+            R = diag([obj.baro_noise, obj.magneto_noise.*ones(1,3)]);
         end
 
-        function x = callback(obj, engine)
-            %anti-drift
-            x = engine.x;
-            x(14:16) = obj.gyro_bias;
-        end
     end
 end

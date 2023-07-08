@@ -27,7 +27,7 @@ classdef EKFEngine
             obj.P = A*obj.P*(A') + Q + Qs;
             
             obj.x = obj.model.compute_x_new(obj.x, u);
-            obj.P = 0.5 *(obj.P + (obj.P).');
+            obj.P = 0.5 *(obj.P + (obj.P)');
             % P has to be symmetric. We could use P + P' instead
             % (as it will always be symmetric). Since Pij = Pji
             % correspond to a covariance, we divide by two (so as to not
@@ -37,13 +37,17 @@ classdef EKFEngine
         function obj = update_step(obj, z)
             % Update = x(k|k-1) -> x(k|k)
             % i.e. it computes the "a posteriori" estimate
-        
+            
             H = obj.model.get_H_matrix();
-            nx = obj.state_size();
-            inov = z - obj.model.get_measurement_estimate(obj.x);
-            S = H*obj.P*(H') + obj.model.get_R_matrix();
-            K = obj.P*(H')*inv(S);
+            h_x = obj.model.get_measurement_estimate(obj.x);
+            R = obj.model.get_R_matrix();
+            nx = size(obj.x,1);
 
+            inov = z-h_x;
+
+            S = H*obj.P*(H')+R;
+            K = obj.P*(H')*inv(S);
+            
             obj.x = obj.x + K*inov;
             obj.P = (eye(nx)-K*H)*obj.P;
         end
