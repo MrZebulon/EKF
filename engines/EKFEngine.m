@@ -6,7 +6,7 @@ classdef EKFEngine < BaseKFEngine
             [Qs, w] = obj.model.generate_noise();
             Q = obj.model.get_Q_matrix(obj.x, u, w);
             obj.P = A*obj.P*(A') + Q + Qs;
-            
+
             obj.x = obj.model.compute_x_new(obj.x, u);
             obj.P = 0.5 *(obj.P + (obj.P)');
             % P has to be symmetric. We could use P + P' instead

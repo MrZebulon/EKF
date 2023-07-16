@@ -14,7 +14,7 @@ F_mag = 20;
 
 Ts = 1/Fs;
 
-data = readtable("raw_in.csv");
+data = readtable("rolling_in_4.csv");
 data = table2array(data);
 
 n = size(data, 1);
@@ -33,23 +33,23 @@ if debug_mode
 end
 
 model = TranslationRotationModelEKF(Ts);
-ekf = EKFEngine(model);
+kf = EKFEngine(model);
 
 %% Simulation loop
-system_states = zeros(n, ekf.state_size()); % used for graphing data
+system_states = zeros(n, kf.state_size()); % used for graphing data
 
 for i = 1:n
-    ekf = ekf.predict_step([acc_data(i, :), gyro_data(i, :)]);
+    kf = kf.predict_step([acc_data(i, :), gyro_data(i, :)]);
 
-    ekf = ekf.update_step_baro([baro_data(i)]);
+    kf = kf.update_step_baro([baro_data(i)]);
     if mod(i, Fs/F_mag)
-            ekf = ekf.update_step_mag([magneto_data(i, :)]);
+           kf = kf.update_step_mag([magneto_data(i, :)]);
     end
 
-    system_states(i, :) = ekf.x';
+    system_states(i, :) = kf.x';
 end
 
 if debug_mode
     profile viewer;
 end
-writematrix(system_states, "./data/out.csv");
+writematrix(system_states, "./data/out_r_4.csv");

@@ -29,30 +29,27 @@ classdef TranslationRotationModelEKF < BaseEKFModel
     properties (Constant)
         additive_noise = 1e-8;
 
-        % Time has been taken into account within the biases/noises/drifts
         % units = m/s
-        accel_bias = [-0.00022021696252465473, 1.972386587771194e-07, -0.0032535502958579853];
-        accel_noise = 4.7358607479753485e-09;
-        accel_drift = 3.314312818032142e-10;
+        accel_bias = [-1.4316165171268747e-05,-0.00014060873444702793,-0.0036099340702918847];
+        accel_noise = 2;
+        accel_drift = 1e-09;
 
         %units = rad/s
-        gyro_bias = [4.9309664694280084e-05, -1.9723865877712034e-05, 0];
-        gyro_noise = 1.0102261028815603e-08;
-        gyro_drift = 3.9979150848914756e-10;
+        gyro_bias = [0.00011856937490705716, -2.845387398998638e-06, 0.0001589500817925012];
+        gyro_noise = 1e-04;
+        gyro_drift = 1e-09;
 
         % units = m
-        baro_bias = 402.42156049763133;
+        baro_bias = 387.5800978850858;
         baro_noise = 0.014769875002697693;
 
         % units = uT
-        magneto_bias = [100, 100, 100];
+        magneto_bias = [0, 0, 0];
         magneto_noise = 0.09;
         magneto_drift =  1e-10;
         magneto_earth_field_drift =  1e-15;
-        magneto_earth_field = [20.31736686390534, -6.346311637080932, -66.59784023668604]
-
+        magneto_earth_field = [5.312602240618649, 24.403329945967382, -90.09273224111436];
     end
-
     methods
         function [x_init, P_init] = get_init_state(obj)
             x_init = [
@@ -145,19 +142,21 @@ classdef TranslationRotationModelEKF < BaseEKFModel
             F(1:3, 4:6) = obj.dt.*eye(3);
 
             F(4, 7:10) = [2*q0*(dvx - dvx_b) - 2*q3*(dvy - dvy_b) + 2*q2*(dvz - dvz_b), 2*q1*(dvx - dvx_b) + 2*q2*(dvy - dvy_b) + 2*q3*(dvz - dvz_b), 2*q1*(dvy - dvy_b) - 2*q2*(dvx - dvx_b) + 2*q0*(dvz - dvz_b), 2*q1*(dvz - dvz_b) - 2*q0*(dvy - dvy_b) - 2*q3*(dvx - dvx_b)];
-            F(4, 14:16) = [- q0^2 - q1^2 + q2^2 + q3^2, 2*q0*q3 - 2*q1*q2, - 2*q0*q2 - 2*q1*q3];
             F(5, 7:10) = [2*q3*(dvx - dvx_b) + 2*q0*(dvy - dvy_b) - 2*q1*(dvz - dvz_b), 2*q2*(dvx - dvx_b) - 2*q1*(dvy - dvy_b) - 2*q0*(dvz - dvz_b), 2*q1*(dvx - dvx_b) + 2*q2*(dvy - dvy_b) + 2*q3*(dvz - dvz_b), 2*q0*(dvx - dvx_b) - 2*q3*(dvy - dvy_b) + 2*q2*(dvz - dvz_b)];
-            F(5, 14:16) = [- 2*q0*q3 - 2*q1*q2, - q0^2 + q1^2 - q2^2 + q3^2, 2*q0*q1 - 2*q2*q3];
             F(6, 7:10) = [2*q1*(dvy - dvy_b) - 2*q2*(dvx - dvx_b) + 2*q0*(dvz - dvz_b), 2*q3*(dvx - dvx_b) + 2*q0*(dvy - dvy_b) - 2*q1*(dvz - dvz_b), 2*q3*(dvy - dvy_b) - 2*q0*(dvx - dvx_b) - 2*q2*(dvz - dvz_b), 2*q1*(dvx - dvx_b) + 2*q2*(dvy - dvy_b) + 2*q3*(dvz - dvz_b)];
+            
+            F(4, 14:16) = [- q0^2 - q1^2 + q2^2 + q3^2, 2*q0*q3 - 2*q1*q2, - 2*q0*q2 - 2*q1*q3];
+            F(5, 14:16) = [- 2*q0*q3 - 2*q1*q2, - q0^2 + q1^2 - q2^2 + q3^2, 2*q0*q1 - 2*q2*q3];
             F(6, 14:16) = [2*q0*q2 - 2*q1*q3,  - 2*q0*q1 - 2*q2*q3, - q0^2 + q1^2 + q2^2 - q3^2];
 
             F(7, 7:10) = [0,  dax_b/2 - dax/2,  day_b/2 - day/2,  daz_b/2 - daz/2];
-            F(7, 14:16) = [q1/2,  q2/2,  q3/2];
             F(8, 7:10) = [dax/2 - dax_b/2, 0,  daz/2 - daz_b/2,  day_b/2 - day/2];
-            F(8, 14:16) = [-q0/2,  q3/2, -q2/2];
             F(9, 7:10) = [day/2 - day_b/2,  daz_b/2 - daz/2, 0,  dax/2 - dax_b/2];
-            F(9, 14:16) = [-q3/2, -q0/2,  q1/2];
             F(10, 7:10) = [daz/2 - daz_b/2,  day/2 - day_b/2,  dax_b/2 - dax/2, 0];
+            
+            F(7, 14:16) = [q1/2,  q2/2,  q3/2];
+            F(8, 14:16) = [-q0/2,  q3/2, -q2/2];
+            F(9, 14:16) = [-q3/2, -q0/2,  q1/2];         
             F(10, 14:16) = [q2/2, -q1/2, -q0/2];
         end
 
@@ -205,7 +204,7 @@ classdef TranslationRotationModelEKF < BaseEKFModel
             Fs = 1/obj.dt;
 
             scale_var = 0.5*(1./(Fs.^2));
-            accel_drift_sigma = scale_var.* obj.accel_drift;
+            accel_drift_sigma = scale_var.*obj.accel_drift;
             gyro_drift_sigma = scale_var.* obj.gyro_drift;
 
             Qs = diag([obj.additive_noise.*ones(1,10), accel_drift_sigma.*ones(1,3), gyro_drift_sigma.*ones(1,3), obj.magneto_earth_field_drift.*ones(1,3), obj.magneto_drift.*ones(1,3)]);
