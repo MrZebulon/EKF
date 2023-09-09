@@ -34,8 +34,8 @@ classdef TranslationRotationModelEKF < BaseEKFModel
         accel_noise = 2;
         accel_drift = 1e-09;
 
-        %units = rad
-        gyro_bias = [0.00011856937490705716, -2.845387398998638e-06, 0.0001589500817925012];
+        % units = rad
+        gyro_bias = [1.1856937490705716e-06, -2.845387398998638e-08, 1.589500817925012e-06];
         gyro_noise = 1e-04;
         gyro_drift = 1e-09;
 
