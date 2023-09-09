@@ -34,7 +34,7 @@ classdef TranslationRotationModelEKF < BaseEKFModel
         accel_noise = 2;
         accel_drift = 1e-09;
 
-        %units = rad/s
+        %units = rad
         gyro_bias = [0.00011856937490705716, -2.845387398998638e-06, 0.0001589500817925012];
         gyro_noise = 1e-04;
         gyro_drift = 1e-09;
@@ -120,8 +120,6 @@ classdef TranslationRotationModelEKF < BaseEKFModel
 
             x_new = x + dx;
 
-            %delta_q = quaternion((dt * u(4:6) - x(14:16)'), "rotvec");
-            %x_new(7:10) = compact(normalize(quaternion(x(7:10)') * delta_q));
             delta_q = [1.0; (dt.*u(4:6)'-x(14:16))/2];
             x_new(7:10) = Utils.mult_quat(x(7:10),delta_q);
             x_new(7:10) = x_new(7:10)/norm(x_new(7:10));

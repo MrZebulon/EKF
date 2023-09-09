@@ -14,7 +14,7 @@ F_mag = 20;
 
 Ts = 1/Fs;
 
-data = readtable("rolling_in_4.csv");
+data = readtable("raw_in_8.csv");
 data = table2array(data);
 
 n = size(data, 1);
@@ -43,7 +43,7 @@ for i = 1:n
 
     kf = kf.update_step_baro([baro_data(i)]);
     if mod(i, Fs/F_mag)
-           kf = kf.update_step_mag([magneto_data(i, :)]);
+          kf = kf.update_step_mag([magneto_data(i, :)]);
     end
 
     system_states(i, :) = kf.x';
@@ -52,4 +52,4 @@ end
 if debug_mode
     profile viewer;
 end
-writematrix(system_states, "./data/out_r_4.csv");
+writematrix(system_states, "./data/out_8.csv");
