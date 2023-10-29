@@ -11,6 +11,11 @@ classdef BaseEKFModel < handle
             x_init = 0;
             P_init = 0;
         end
+
+        function set_calibration_data(obj, calibration)
+            
+        end
+
         function x_new = compute_x_new(obj, x, u)
             % x_new = x + delta_x
             % delta_x is defined as the integral over a given timestep (dt) of

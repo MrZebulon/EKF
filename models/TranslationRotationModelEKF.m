@@ -26,31 +26,54 @@ classdef TranslationRotationModelEKF < BaseEKFModel
         Nu = 6;
         Nw = 7;
     end
-    properties (Constant)
+    properties
         additive_noise = 1e-8;
 
         % units = m/s
-        accel_bias = [-1.4316165171268747e-05,-0.00014060873444702793,-0.0036099340702918847];
-        accel_noise = 2;
-        accel_drift = 1e-09;
+        accel_bias = [0, 0, 0];
+        accel_noise = [0, 0, 0];
+        accel_drift = 0;
 
         % units = rad
-        gyro_bias = [1.1856937490705716e-06, -2.845387398998638e-08, 1.589500817925012e-06];
-        gyro_noise = 1e-04;
-        gyro_drift = 1e-09;
+        gyro_bias = [0, 0, 0];
+        gyro_noise = [0, 0, 0];
+        gyro_drift = 0;
 
         % units = m
-        baro_bias = 387.5800978850858;
-        baro_noise = 0.014769875002697693;
+        baro_bias = 0;
+        baro_noise = 0;
 
         % units = uT
+        magneto_earth_field = [0, 0, 0];
+        magneto_earth_field_drift = 0;
+
         magneto_bias = [0, 0, 0];
-        magneto_noise = 0.09;
-        magneto_drift =  1e-10;
-        magneto_earth_field_drift =  1e-15;
-        magneto_earth_field = [5.312602240618649, 24.403329945967382, -90.09273224111436];
+        magneto_noise = [0, 0, 0];
+        magneto_drift =  0;
+
     end
     methods
+
+        function set_calibration_data(obj, calibration)
+            obj.accel_bias = calibration.accel_bias;
+            obj.accel_noise = calibration.accel_noise;
+            obj.accel_drift = calibration.accel_drift;
+
+            obj.gyro_bias = calibration.gyro_bias;
+            obj.gyro_noise = calibration.gyro_noise;
+            obj.gyro_drift = calibration.gyro_drift;
+
+            obj.baro_bias = calibration.baro_bias;
+            obj.baro_noise = calibration.baro_noise;
+
+            obj.magneto_earth_field = calibration.magneto_earth_field;
+            obj.magneto_earth_field_drift = calibration.magneto_earth_field_drift;
+
+            obj.magneto_bias = calibration.magneto_bias;
+            obj.magneto_noise = calibration.magneto_noise;
+            obj.magneto_drift = calibration.magneto_drift;
+        end
+
         function [x_init, P_init] = get_init_state(obj)
             x_init = [
                 0
@@ -162,7 +185,6 @@ classdef TranslationRotationModelEKF < BaseEKFModel
 
             q0 = x(7); q1 = x(8); q2 = x(9); q3 = x(10);
             G = zeros(obj.Nx, obj.Nw);
-
             G(4:6, 1:3) = quat2rotm([q0, q1, q2, q3]);
             G(7:10, 4:7) = 0.5 .*Utils.hamilton_product_as_matrix([q0, q1, q2, q3]);
             Q = G*diag([w(1:3), w(4:7)])*(G.');
@@ -195,7 +217,7 @@ classdef TranslationRotationModelEKF < BaseEKFModel
             H(2, :) = [0,0,0, 0,0,0, 2*magNavZ*q1 + 2*magNavY*q0 - 2*magNavX*q3, 2*magNavZ*q0 - 2*magNavY*q1 + 2*magNavX*q2, 2*magNavZ*q3 + 2*magNavY*q2 + 2*magNavX*q1, 2*magNavZ*q2 - 2*magNavY*q3 - 2*magNavX*q0, 0,0,0, 0,0,0, 2*q1*q2 - 2*q0*q3, q0^2 - q1^2 + q2^2 - q3^2, 2*q0*q1 + 2*q2*q3, 0, 1, 0];
             H(3, :) = [0,0,0, 0,0,0, 2*magNavZ*q0 - 2*magNavY*q1 + 2*magNavX*q2, 2*magNavX*q3 - 2*magNavY*q0 - 2*magNavZ*q1, 2*magNavY*q3 - 2*magNavZ*q2 + 2*magNavX*q0, 2*magNavZ*q3 + 2*magNavY*q2 + 2*magNavX*q1, 0,0,0, 0,0,0, 2*q0*q2 + 2*q1*q3, 2*q2*q3 - 2*q0*q1, q0^2 - q1^2 - q2^2 + q3^2, 0, 0, 1];
             
-            R = diag(obj.magneto_noise.*ones(1,3));
+            R = diag(obj.magneto_noise);
         end
 
         function [Qs, w] = generate_noise(obj)
@@ -206,7 +228,7 @@ classdef TranslationRotationModelEKF < BaseEKFModel
             gyro_drift_sigma = scale_var.* obj.gyro_drift;
 
             Qs = diag([obj.additive_noise.*ones(1,10), accel_drift_sigma.*ones(1,3), gyro_drift_sigma.*ones(1,3), obj.magneto_earth_field_drift.*ones(1,3), obj.magneto_drift.*ones(1,3)]);
-            w = scale_var.*[obj.accel_noise.*ones(1,3), 0, obj.gyro_noise.*ones(1,3)];
+            w = scale_var.*[obj.accel_noise, 0, obj.gyro_noise];
         end
 
     end
