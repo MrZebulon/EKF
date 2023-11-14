@@ -34,6 +34,11 @@ classdef EKFEngine < BaseKFEngine
             [h, H, R] = obj.model.mag_obs_model(obj.x);
             obj.update_step(z, h, H, R);
         end
+
+        function obj = update_step_optitrack(obj, z)
+            [h, H, R] = obj.model.optitrack_obs_model(obj.x);
+            obj.update_step(z, h, H, R);
+        end
         
         function Nx = state_size(obj)
             Nx = obj.model.Nx;
